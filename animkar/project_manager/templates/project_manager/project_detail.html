@@ -1,0 +1,120 @@
+{% extends 'project_manager/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ project.name }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if project.description %}
+                    <p class="card-text">{{ project.description }}</p>
+                    {% endif %}
+                    <small class="text-muted">
+                        Created: {{ project.created_at|date:"M d, Y H:i" }} |
+                        Updated: {{ project.updated_at|date:"M d, Y H:i" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'project_update' project.pk %}" class="btn btn-outline-primary btn-sm mb-2">Edit Project</a>
+                    <a href="{% url 'project_delete' project.pk %}" class="btn btn-outline-danger btn-sm">Delete Project</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Transcription Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Audio Transcriptions</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Upload Form -->
+                    <div class="mb-4">
+                        <h6>Upload New Audio File</h6>
+                        <form method="post" enctype="multipart/form-data" action="{% url 'audio_transcription:upload_audio' project.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="audio_file" class="form-label">Select Audio File</label>
+                                <input type="file" class="form-control" id="audio_file" name="audio_file" accept=".mp3,.wav,.ogg,.flac,.m4a,.aac" required>
+                                <div class="form-text">Supported formats: MP3, WAV, OGG, FLAC, M4A, AAC</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Upload & Transcribe</button>
+                        </form>
+                    </div>
+
+                    <!-- Existing Transcriptions -->
+                    {% if project.transcriptions.exists %}
+                    <h6>Previous Transcriptions</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Status</th>
+                                    <th>Duration</th>
+                                    <th>Words</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transcription in project.transcriptions.all %}
+                                <tr>
+                                    <td>{{ transcription.original_filename }}</td>
+                                    <td>
+                                        {% if transcription.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif transcription.status == 'processing' %}
+                                            <span class="badge bg-warning">Processing</span>
+                                        {% elif transcription.status == 'failed' %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ transcription.status|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if transcription.duration_seconds %}
+                                            {{ transcription.duration_seconds|floatformat:1 }}s
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if transcription.total_words %}
+                                            {{ transcription.total_words }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ transcription.created_at|date:"M d, H:i" }}</td>
+                                    <td>
+                                        {% if transcription.status == 'completed' %}
+                                            <a href="{% url 'audio_transcription:transcription_detail' transcription.pk %}" class="btn btn-sm btn-outline-primary">View Results</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No audio transcriptions yet. Upload an audio file to get started.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -38,6 +38,7 @@
                 {% endif %}
                 <small class="text-muted">Created: {{ project.created_at|date:"M d, Y" }}</small>
                 <div class="mt-2">
+                    <a href="{% url 'project_detail' project.pk %}" class="btn btn-sm btn-primary">View</a>
                     <a href="{% url 'project_update' project.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
                     <a href="{% url 'project_delete' project.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
                 </div>
