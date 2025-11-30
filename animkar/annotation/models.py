@@ -68,3 +68,31 @@ class BodyPostureAnnotation(models.Model):
 
     def __str__(self):
         return f"{self.word_timestamp.word}: {self.posture}"
+
+class ModeAnnotation(models.Model):
+    MODE_CHOICES = [
+        ('big_center', 'Big Center'),
+        ('big_side', 'Big Side'),
+        ('small_side', 'Small Side'),
+        ('no_avatar', 'No Avatar'),
+    ]
+
+    word_timestamp = models.OneToOneField(
+        WordTimestamp,
+        on_delete=models.CASCADE,
+        related_name='mode_annotation'
+    )
+    mode = models.CharField(max_length=20, choices=MODE_CHOICES)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Optional: confidence score from AI annotation
+    confidence = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['word_timestamp__start_time_seconds']
+
+    def __str__(self):
+        return f"{self.word_timestamp.word}: {self.mode}"

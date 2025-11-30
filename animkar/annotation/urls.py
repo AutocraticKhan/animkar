@@ -10,4 +10,7 @@ urlpatterns = [
     path('transcription/<int:transcription_id>/body-posture/', views.annotate_body_posture, name='annotate_body_posture'),
     path('transcription/<int:transcription_id>/body-posture/save/', views.save_body_posture_annotations, name='save_body_posture_annotations'),
     path('transcription/<int:transcription_id>/body-posture/auto-annotate/', views.auto_annotate_body_posture, name='auto_annotate_body_posture'),
+    path('transcription/<int:transcription_id>/mode/', views.annotate_mode, name='annotate_mode'),
+    path('transcription/<int:transcription_id>/mode/save/', views.save_mode_annotations, name='save_mode_annotations'),
+    path('transcription/<int:transcription_id>/mode/auto-annotate/', views.auto_annotate_mode, name='auto_annotate_mode'),
 ]

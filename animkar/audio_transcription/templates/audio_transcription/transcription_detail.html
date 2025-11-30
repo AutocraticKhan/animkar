@@ -164,6 +164,9 @@
                         <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}" class="btn btn-outline-info btn-sm">
                             <i class="fas fa-user"></i> Body Posture Annotate
                         </a>
+                        <a href="{% url 'annotation:annotate_mode' transcription.pk %}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-tv"></i> Mode Annotate
+                        </a>
                     {% endif %}
                 </div>
             </div>
