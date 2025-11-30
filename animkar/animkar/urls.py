@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('project_manager.urls')),
     path('', include('audio_transcription.urls')),
+    path('annotation/', include('annotation.urls')),
 ]
 
 # Serve media files during development

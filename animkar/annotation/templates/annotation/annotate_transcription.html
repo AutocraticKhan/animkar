@@ -1,0 +1,511 @@
+{% extends "project_manager/base.html" %}
+
+{% block title %}Emotion Annotation - {{ transcription.original_filename }}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        Emotion Annotation: {{ transcription.original_filename }}
+                        <small class="text-muted">({{ word_timestamps|length }} words)</small>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Coverage Status -->
+                    <div class="alert alert-info" id="coverage-alert">
+                        <strong>Coverage Status:</strong>
+                        <span id="coverage-text">
+                            {% if coverage_complete %}
+                                Complete ({{ word_timestamps|length }}/{{ word_timestamps|length }} words annotated)
+                            {% else %}
+                                Incomplete ({{ missing_words }}/{{ word_timestamps|length }} words annotated)
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-primary" id="auto-annotate-btn">
+                            <i class="fas fa-robot"></i> Auto-Annotate with AI
+                        </button>
+                        <button type="button" class="btn btn-success" id="save-annotations-btn">
+                            <i class="fas fa-save"></i> Save Annotations
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-arrow-left"></i> Back to Transcription
+                        </button>
+                    </div>
+
+                    <!-- Emotion Legend -->
+                    <div class="mb-3">
+                        <h5>Emotion Legend:</h5>
+                        <div class="row">
+                            {% for emotion_key, emotion_label in emotion_choices %}
+                            <div class="col-md-2 col-sm-4 mb-2">
+                                <span class="badge emotion-badge emotion-{{ emotion_key }}" style="cursor: pointer;" onclick="selectEmotionForAll('{{ emotion_key }}')">
+                                    {{ emotion_label }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Click an emotion badge to assign it to all selected words, or drag to select multiple words below.</small>
+                    </div>
+
+                    <!-- Transcription Text -->
+                    <div class="transcription-container border rounded p-3" id="transcription-text">
+                        {% for word_timestamp in word_timestamps %}
+                        <span class="word-token"
+                              data-word-id="{{ word_timestamp.id }}"
+                              data-emotion="{{ word_timestamp.emotion }}">
+                            {{ word_timestamp.word }}
+                        </span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Selected Words Panel -->
+                    <div class="mt-3" id="selected-words-panel" style="display: none;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Selected Words (<span id="selected-count">0</span>)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="selected-words-list" class="mb-3"></div>
+                                <small class="text-muted">Use the emotion badges above to assign emotions to selected words.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for warnings -->
+<div class="modal fade" id="warningModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="warning-modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="warning-modal-confirm">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.word-token {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.word-token:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.word-token.selected {
+    background-color: #007bff !important;
+    color: white;
+    border-color: #0056b3;
+}
+
+.word-token.annotated {
+    border-color: #28a745;
+}
+
+.transcription-container {
+    line-height: 2;
+    font-size: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Emotion color coding - applied via JavaScript */
+
+.emotion-badge {
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+.emotion-btn {
+    margin: 2px;
+}
+</style>
+
+<script>
+// Emotion color mapping
+const emotionColors = {
+    'angry': '#ff6b6b',
+    'bore': '#a9a9a9',
+    'content': '#90ee90',
+    'glare': '#ffa500',
+    'happy': '#ffd93d',
+    'sad': '#74c0fc',
+    'sarcasm': '#c0c0c0',
+    'worried': '#d0bfff'
+};
+
+const emotionTextColors = {
+    'angry': '#fff',
+    'bore': '#000',
+    'content': '#000',
+    'glare': '#000',
+    'happy': '#000',
+    'sad': '#000',
+    'sarcasm': '#000',
+    'worried': '#000'
+};
+
+let selectedWords = new Set();
+let wordAnnotations = {};
+let isDragging = false;
+let dragStartWord = null;
+let dragEndWord = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyEmotionStyles();
+    initializeAnnotations();
+    setupEventListeners();
+});
+
+function applyEmotionStyles() {
+    const style = document.createElement('style');
+    let css = '';
+
+    Object.keys(emotionColors).forEach(emotion => {
+        css += `.emotion-${emotion} { background-color: ${emotionColors[emotion]} !important; color: ${emotionTextColors[emotion]} !important; }\n`;
+    });
+
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+function initializeAnnotations() {
+    // Load existing annotations
+    document.querySelectorAll('.word-token').forEach(token => {
+        const wordId = token.dataset.wordId;
+        const emotion = token.dataset.emotion;
+
+        if (emotion && emotion !== 'none') {
+            wordAnnotations[wordId] = emotion;
+            token.classList.add('annotated', `emotion-${emotion}`);
+        }
+    });
+}
+
+function getWordIndex(wordElement) {
+    const allWords = Array.from(document.querySelectorAll('.word-token'));
+    return allWords.indexOf(wordElement);
+}
+
+function getWordElementUnderMouse(e) {
+    const element = document.elementFromPoint(e.clientX, e.clientY);
+    if (element && element.classList.contains('word-token')) {
+        return element;
+    }
+    return null;
+}
+
+function selectWordRange(startIndex, endIndex) {
+    const allWords = document.querySelectorAll('.word-token');
+    const start = Math.min(startIndex, endIndex);
+    const end = Math.max(startIndex, endIndex);
+
+    // Clear current selection
+    clearSelection();
+
+    // Select words in range
+    for (let i = start; i <= end; i++) {
+        const wordElement = allWords[i];
+        if (wordElement) {
+            const wordId = wordElement.dataset.wordId;
+            selectedWords.add(wordId);
+            wordElement.classList.add('selected');
+        }
+    }
+}
+
+function setupEventListeners() {
+    const transcriptionText = document.getElementById('transcription-text');
+
+    // Drag selection for words
+    transcriptionText.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('word-token')) {
+            e.preventDefault();
+            isDragging = true;
+            dragStartWord = getWordIndex(e.target);
+            dragEndWord = dragStartWord;
+            clearSelection();
+            selectWordRange(dragStartWord, dragEndWord);
+            updateSelectedWordsPanel();
+        }
+    });
+
+    transcriptionText.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            const wordElement = getWordElementUnderMouse(e);
+            if (wordElement) {
+                const wordIndex = getWordIndex(wordElement);
+                if (wordIndex !== dragEndWord) {
+                    dragEndWord = wordIndex;
+                    selectWordRange(dragStartWord, dragEndWord);
+                    updateSelectedWordsPanel();
+                }
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', function(e) {
+        if (isDragging) {
+            isDragging = false;
+            dragStartWord = null;
+            dragEndWord = null;
+        }
+    });
+
+    // Prevent text selection on the container
+    transcriptionText.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+    });
+
+    // Auto-annotate button
+    document.getElementById('auto-annotate-btn').addEventListener('click', autoAnnotate);
+
+    // Save annotations button
+    document.getElementById('save-annotations-btn').addEventListener('click', saveAnnotations);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+A to select all
+        if (e.ctrlKey && e.key === 'a') {
+            e.preventDefault();
+            selectAllWords();
+        }
+        // Escape to clear selection
+        if (e.key === 'Escape') {
+            clearSelection();
+        }
+    });
+}
+
+function toggleWordSelection(wordElement) {
+    const wordId = wordElement.dataset.wordId;
+
+    if (selectedWords.has(wordId)) {
+        selectedWords.delete(wordId);
+        wordElement.classList.remove('selected');
+    } else {
+        selectedWords.add(wordId);
+        wordElement.classList.add('selected');
+    }
+
+    updateSelectedWordsPanel();
+}
+
+function selectAllWords() {
+    document.querySelectorAll('.word-token').forEach(token => {
+        const wordId = token.dataset.wordId;
+        selectedWords.add(wordId);
+        token.classList.add('selected');
+    });
+    updateSelectedWordsPanel();
+}
+
+function clearSelection() {
+    selectedWords.forEach(wordId => {
+        const token = document.querySelector(`[data-word-id="${wordId}"]`);
+        if (token) token.classList.remove('selected');
+    });
+    selectedWords.clear();
+    updateSelectedWordsPanel();
+}
+
+function selectEmotionForAll(emotion) {
+    if (selectedWords.size === 0) {
+        showWarning('Please select some words first.', () => selectAllWords());
+        return;
+    }
+
+    assignEmotionToSelected(emotion);
+}
+
+function assignEmotionToSelected(emotion) {
+    if (selectedWords.size === 0) return;
+
+    selectedWords.forEach(wordId => {
+        assignEmotionToWord(wordId, emotion);
+    });
+
+    clearSelection();
+    updateCoverageStatus();
+}
+
+function assignEmotionToWord(wordId, emotion) {
+    wordAnnotations[wordId] = emotion;
+
+    const token = document.querySelector(`[data-word-id="${wordId}"]`);
+
+    // Remove existing emotion classes
+    token.classList.forEach(cls => {
+        if (cls.startsWith('emotion-')) {
+            token.classList.remove(cls);
+        }
+    });
+
+    token.classList.add('annotated', `emotion-${emotion}`);
+}
+
+function updateSelectedWordsPanel() {
+    const panel = document.getElementById('selected-words-panel');
+    const count = document.getElementById('selected-count');
+    const list = document.getElementById('selected-words-list');
+
+    count.textContent = selectedWords.size;
+
+    if (selectedWords.size > 0) {
+        panel.style.display = 'block';
+        const words = Array.from(selectedWords).map(wordId => {
+            const token = document.querySelector(`[data-word-id="${wordId}"]`);
+            return token ? token.textContent.trim() : wordId;
+        });
+        list.textContent = words.join(', ');
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function updateCoverageStatus() {
+    const totalWords = document.querySelectorAll('.word-token').length;
+    const annotatedWords = Object.keys(wordAnnotations).length;
+    const coverageText = document.getElementById('coverage-text');
+
+    coverageText.textContent = `${annotatedWords}/${totalWords} words annotated`;
+
+    const alert = document.getElementById('coverage-alert');
+    if (annotatedWords === totalWords) {
+        alert.className = 'alert alert-success';
+    } else {
+        alert.className = 'alert alert-warning';
+    }
+}
+
+function autoAnnotate() {
+    const btn = document.getElementById('auto-annotate-btn');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    fetch(`/annotation/transcription/{{ transcription.id }}/auto-annotate/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show new annotations
+            location.reload();
+        } else {
+            showWarning(data.error || 'Auto-annotation failed');
+        }
+    })
+    .catch(error => {
+        showWarning('Network error: ' + error.message);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function saveAnnotations() {
+    const totalWords = document.querySelectorAll('.word-token').length;
+    const annotatedWords = Object.keys(wordAnnotations).length;
+
+    if (annotatedWords < totalWords) {
+        showWarning(
+            `Only ${annotatedWords} out of ${totalWords} words are annotated. ` +
+            'Unannotated words will be automatically assigned "content" emotion. Continue?',
+            () => performSave()
+        );
+    } else {
+        performSave();
+    }
+}
+
+function performSave() {
+    const btn = document.getElementById('save-annotations-btn');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    const annotations = Object.entries(wordAnnotations).map(([wordId, emotion]) => ({
+        word_timestamp_id: parseInt(wordId),
+        emotion: emotion
+    }));
+
+    fetch(`/annotation/transcription/{{ transcription.id }}/save/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ annotations: annotations })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showWarning(data.message, () => location.reload());
+        } else {
+            showWarning(data.error || 'Save failed');
+        }
+    })
+    .catch(error => {
+        showWarning('Network error: ' + error.message);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function showWarning(message, onConfirm = null) {
+    const modal = new bootstrap.Modal(document.getElementById('warningModal'));
+    const body = document.getElementById('warning-modal-body');
+    const confirmBtn = document.getElementById('warning-modal-confirm');
+
+    body.textContent = message;
+
+    if (onConfirm) {
+        confirmBtn.style.display = 'inline-block';
+        confirmBtn.onclick = () => {
+            modal.hide();
+            onConfirm();
+        };
+    } else {
+        confirmBtn.style.display = 'none';
+    }
+
+    modal.show();
+}
+</script>
+
+{% endblock %}

@@ -158,6 +158,9 @@
                     <a href="{% url 'project_detail' project.pk %}" class="btn btn-outline-primary btn-sm">Back to Project</a>
                     {% if transcription.status == 'completed' %}
                         <button class="btn btn-outline-secondary btn-sm" onclick="exportTimestamps()">Export CSV</button>
+                        <a href="{% url 'annotation:annotate_transcription' transcription.pk %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-heart"></i> Emotion Annotate
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -181,7 +184,7 @@ function exportTimestamps() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = '{{ transcription.original_filename|slice:":-4"|escapejs }}_timestamps.csv';
+    a.download = '{{ transcription.original_filename|slice:"-4"|escapejs }}_timestamps.csv';
     a.click();
     window.URL.revokeObjectURL(url);
 }
