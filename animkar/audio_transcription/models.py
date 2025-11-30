@@ -1,6 +1,13 @@
 from django.db import models
+from django.conf import settings
 from project_manager.models import Project
 import os
+
+def project_audio_upload_path(instance, filename):
+    """
+    Generate upload path for audio files: audio_transcriptions/project_{id}/{filename}
+    """
+    return f"audio_transcriptions/project_{instance.project.id}/{filename}"
 
 class AudioTranscription(models.Model):
     STATUS_CHOICES = [
@@ -11,14 +18,14 @@ class AudioTranscription(models.Model):
     ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='transcriptions')
-    audio_file = models.FileField(upload_to='audio_transcriptions/')
+    audio_file = models.FileField(upload_to=project_audio_upload_path)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     # Metadata
     original_filename = models.CharField(max_length=255)
     file_size = models.PositiveIntegerField(help_text="File size in bytes")
     duration_seconds = models.FloatField(null=True, blank=True)
-    language = models.CharField(max_length=10, default='hi')  # Default to Hindi
+    language = models.CharField(max_length=10, default='en')  # Default to English
     model_name = models.CharField(max_length=50, default='tiny')
 
     # Processing results

@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.generic import DeleteView
 from django.utils import timezone
 from project_manager.models import Project
 from .models import AudioTranscription, WordTimestamp
 from .transcription_utils import (
     load_or_download_model,
-    transcribe_audio_with_word_timestamps,
+    transcribe_audio_with_accurate_timestamps,
     MODEL_CACHE_DIR,
     MODEL_NAME
 )
@@ -66,52 +67,53 @@ def upload_audio(request, project_id):
 def process_transcription(transcription):
     """Process the transcription in the background"""
     try:
-        # Load Whisper model
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model = load_or_download_model(MODEL_NAME, MODEL_CACHE_DIR, device)
-
-        if model is None:
-            transcription.status = 'failed'
-            transcription.save()
-            return
-
         # Get audio file path
         audio_path = transcription.get_audio_file_path()
 
-        # Transcribe audio
-        result = transcribe_audio_with_word_timestamps(
-            audio_path,
-            model,
+        # Transcribe audio with improved pipeline
+        words_data = transcribe_audio_with_accurate_timestamps(
+            audio_path=audio_path,
             language=transcription.language,
-            confidence_threshold=0.3,
-            use_sample_accurate=True
+            silence_thresh=-40,
+            min_silence_len=500,
+            confidence_threshold=0.3
         )
+
+        # Calculate statistics
+        total_words = len(words_data)
+        high_confidence_words = len([w for w in words_data if w['confidence'] >= 0.5])
+        avg_confidence = sum(w['confidence'] for w in words_data) / total_words if total_words > 0 else 0
+        audio_duration = words_data[-1]['end_time_s'] if words_data else 0
 
         # Update transcription metadata
         transcription.status = 'completed'
-        transcription.duration_seconds = result['audio_duration']
-        transcription.total_words = result['total_words']
-        transcription.high_confidence_words = result['high_confidence_words']
-        transcription.average_confidence = result['average_confidence']
+        transcription.duration_seconds = audio_duration
+        transcription.total_words = total_words
+        transcription.high_confidence_words = high_confidence_words
+        transcription.average_confidence = avg_confidence
+        transcription.model_name = MODEL_NAME
         transcription.processed_at = timezone.now()
         transcription.save()
 
-        # Create WordTimestamp instances
-        for word_data in result['word_data']:
+        # Create WordTimestamp instances with transliteration data
+        for word_data in words_data:
             WordTimestamp.objects.create(
                 transcription=transcription,
-                word=word_data['Word'],
-                start_time_seconds=word_data['Start Time (s)'],
-                end_time_seconds=word_data['End Time (s)'],
-                confidence=word_data['Confidence'],
-                duration_seconds=word_data['End Time (s)'] - word_data['Start Time (s)'],
-                is_high_confidence=word_data['Confidence'] >= 0.5
+                word=word_data['word'],  # Transliterated word
+                transliterated_word=word_data['original_script'] if word_data['transliterated'] else None,
+                start_time_seconds=word_data['start_time_s'],
+                end_time_seconds=word_data['end_time_s'],
+                confidence=word_data['confidence'],
+                duration_seconds=word_data['duration_s'],
+                is_high_confidence=word_data['confidence'] >= 0.5
             )
 
     except Exception as e:
         transcription.status = 'failed'
         transcription.save()
         print(f"Transcription failed: {e}")
+        import traceback
+        traceback.print_exc()
 
 def transcription_detail(request, transcription_id):
     """Display detailed transcription results"""
@@ -145,3 +147,17 @@ def retry_transcription(request, transcription_id):
         messages.warning(request, 'Transcription is not in failed state.')
 
     return redirect('transcription_detail', transcription_id=transcription_id)
+
+
+
+class AudioTranscriptionDeleteView(DeleteView):
+    model = AudioTranscription
+    template_name = 'audio_transcription/transcription_confirm_delete.html'
+    success_url = reverse_lazy('project_list')
+
+    def get_success_url(self):
+        return reverse('project_detail', kwargs={'pk': self.object.project.pk})
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, f'Deleted transcription "{self.get_object().original_filename}".')
+        return super().delete(request, *args, **kwargs)

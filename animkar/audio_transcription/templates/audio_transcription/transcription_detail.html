@@ -56,6 +56,7 @@
                                 <thead>
                                     <tr>
                                         <th>Word</th>
+                                        <th>Original Script</th>
                                         <th>Start Time</th>
                                         <th>End Time</th>
                                         <th>Duration</th>
@@ -69,6 +70,14 @@
                                             <code>{{ word.word }}</code>
                                             {% if word.is_high_confidence %}
                                                 <span class="badge bg-success ms-1">High</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if word.transliterated_word %}
+                                                <code class="text-primary">{{ word.transliterated_word }}</code>
+                                                <small class="text-muted">(Hindi)</small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
                                             {% endif %}
                                         </td>
                                         <td>{{ word.start_time_seconds|floatformat:2 }}s</td>

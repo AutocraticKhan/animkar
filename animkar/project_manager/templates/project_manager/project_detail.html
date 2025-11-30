@@ -103,6 +103,7 @@
                                         {% if transcription.status == 'completed' %}
                                             <a href="{% url 'audio_transcription:transcription_detail' transcription.pk %}" class="btn btn-sm btn-outline-primary">View Results</a>
                                         {% endif %}
+                                        <a href="{% url 'audio_transcription:delete_transcription' transcription.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
                                     </td>
                                 </tr>
                                 {% endfor %}

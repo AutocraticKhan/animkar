@@ -121,3 +121,6 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+animkar/animkar/__pycache__/settings.cpython-310.pyc
+animkar/animkar/__pycache__/settings.cpython-310.pyc
+.gitignore
