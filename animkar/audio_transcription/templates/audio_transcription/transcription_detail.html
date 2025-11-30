@@ -161,6 +161,9 @@
                         <a href="{% url 'annotation:annotate_transcription' transcription.pk %}" class="btn btn-outline-success btn-sm">
                             <i class="fas fa-heart"></i> Emotion Annotate
                         </a>
+                        <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-user"></i> Body Posture Annotate
+                        </a>
                     {% endif %}
                 </div>
             </div>

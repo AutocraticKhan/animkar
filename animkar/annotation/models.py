@@ -32,3 +32,39 @@ class EmotionAnnotation(models.Model):
 
     def __str__(self):
         return f"{self.word_timestamp.word}: {self.emotion}"
+
+class BodyPostureAnnotation(models.Model):
+    POSTURE_CHOICES = [
+        ('brave', 'Brave'),
+        ('cross_hands', 'Cross Hands'),
+        ('hello', 'Hello'),
+        ('listen', 'Listen'),
+        ('me', 'Me'),
+        ('no', 'No'),
+        ('point', 'Point'),
+        ('that', 'That'),
+        ('think', 'Think'),
+        ('this', 'This'),
+        ('why', 'Why'),
+        ('wow', 'Wow'),
+    ]
+
+    word_timestamp = models.OneToOneField(
+        WordTimestamp,
+        on_delete=models.CASCADE,
+        related_name='body_posture_annotation'
+    )
+    posture = models.CharField(max_length=20, choices=POSTURE_CHOICES)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Optional: confidence score from AI annotation
+    confidence = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['word_timestamp__start_time_seconds']
+
+    def __str__(self):
+        return f"{self.word_timestamp.word}: {self.posture}"
