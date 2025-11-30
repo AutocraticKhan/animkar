@@ -1,0 +1,52 @@
+{% extends 'project_manager/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Create New Project</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'project_create' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">Project Name *</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        {{ form.description }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="mt-5">Projects</h2>
+{% if projects %}
+<div class="row">
+    {% for project in projects %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ project.name }}</h5>
+                {% if project.description %}
+                <p class="card-text">{{ project.description }}</p>
+                {% endif %}
+                <small class="text-muted">Created: {{ project.created_at|date:"M d, Y" }}</small>
+                <div class="mt-2">
+                    <a href="{% url 'project_update' project.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'project_delete' project.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No projects created yet.</p>
+{% endif %}
+{% endblock %}
