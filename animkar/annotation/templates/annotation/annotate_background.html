@@ -1,0 +1,740 @@
+{% extends "project_manager/base.html" %}
+
+{% block title %}Background Annotation - {{ transcription.original_filename }}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
+                    <li class="breadcrumb-item active">Background Annotation</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Panel: Navigation -->
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h6>📋 Navigation</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="/transcription/{{ transcription.pk }}/"
+                           class="btn btn-outline-secondary btn-sm">
+                            📝 Transcription
+                        </a>
+                        <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
+                           class="btn btn-info btn-sm">
+                            🎨 Emotion
+                        </a>
+                        <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
+                           class="btn btn-info btn-sm">
+                            💃 Body
+                        </a>
+                        <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
+                           class="btn btn-warning btn-sm">
+                            🎬 Mode
+                        </a>
+                        <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
+                           class="btn btn-info btn-sm">
+                            👥 Characters
+                        </a>
+                        <a href="{% url 'annotation:annotate_background' transcription.pk %}"
+                           class="btn btn-primary btn-sm active">
+                            🎨 Background
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Background Annotation -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        Background Annotation: {{ transcription.original_filename }}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Coverage Status -->
+                    <div class="alert alert-info" id="coverage-alert">
+                        <strong>Coverage Status:</strong>
+                        <span id="coverage-text">
+                            {% if coverage_complete %}
+                                Complete ({{ word_timestamps|length }}/{{ word_timestamps|length }} words annotated)
+                            {% else %}
+                                Incomplete ({{ missing_words }}/{{ word_timestamps|length }} words annotated)
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-success" id="save-background-btn">
+                            <i class="fas fa-save"></i> Save Backgrounds
+                        </button>
+                        <button type="button" class="btn btn-danger" id="clear-backgrounds-btn">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+
+                    <!-- Background Legend -->
+                    <div class="mb-3">
+                        <h5>Background Legend:</h5>
+                        <div class="row">
+                            {% for background_key, background_label in background_choices %}
+                            <div class="col-md-3 col-sm-6 mb-2">
+                                <span class="badge background-badge background-{{ background_key }}" style="cursor: pointer;" onclick="selectBackgroundForAll('{{ background_key }}')">
+                                    {{ background_label }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">Click a background badge to assign it to all selected words, or drag to select multiple words below.</small>
+                    </div>
+
+                    <!-- Custom Color Picker -->
+                    <div class="mb-3" id="color-picker-section" style="display: none;">
+                        <label for="color-picker" class="form-label">Choose Custom Color:</label>
+                        <input type="color" class="form-control form-control-color" id="color-picker" value="#ff0000">
+                    </div>
+
+                    <!-- Custom Image Selection -->
+                    <div class="mb-3" id="image-selection-section" style="display: none;">
+                        <div class="d-flex gap-2 align-items-center">
+                            <button type="button" class="btn btn-outline-secondary" id="select-image-btn">
+                                📁 Select Image
+                            </button>
+                            <input type="file" class="d-none" id="image-upload" accept="image/*">
+                            <span id="selected-image-name" class="text-muted">No image selected</span>
+                        </div>
+                        <div class="form-text">Supported formats: PNG, JPG, JPEG, BMP, GIF</div>
+                    </div>
+
+                    <!-- Transcription Text -->
+                    <div class="transcription-container border rounded p-3" id="transcription-text">
+                        {% for word_timestamp in word_timestamps %}
+                        <span class="word-token"
+                              data-word-id="{{ word_timestamp.id }}"
+                              data-background-type="{{ word_timestamp.background.background_type }}"
+                              data-background-value="{{ word_timestamp.background.background_value }}">
+                            {{ word_timestamp.word }}
+                        </span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Selected Words Panel -->
+                    <div class="mt-3" id="selected-words-panel" style="display: none;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Selected Words (<span id="selected-count">0</span>)</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="selected-words-list" class="mb-3"></div>
+                                <small class="text-muted">Use the background options above to assign backgrounds to selected words.</small>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for warnings -->
+<div class="modal fade" id="warningModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="warning-modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="warning-modal-confirm">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.word-token {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.word-token:hover {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.word-token.selected {
+    background-color: #007bff !important;
+    color: white;
+    border-color: #0056b3;
+}
+
+.word-token.annotated {
+    border-color: #28a745;
+}
+
+.transcription-container {
+    line-height: 2;
+    font-size: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.transcription-container::selection {
+    background-color: rgba(0, 123, 255, 0.3);
+}
+
+.background-highlight {
+    position: relative;
+}
+
+.background-highlight.green {
+    background-color: #4ade80 !important;
+}
+
+.background-highlight.white {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb;
+}
+
+.background-highlight.custom_color {
+    border: 2px solid #3b82f6;
+}
+
+.background-highlight.custom_image {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text fill="%236b7280" font-size="12" y="50%">Image</text></svg>');
+    background-size: cover;
+    opacity: 0.8;
+}
+
+.background-option.active {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Background color coding - applied via JavaScript */
+
+.background-badge {
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+.list-group-item small {
+    display: block;
+    color: #6c757d;
+    font-size: 0.875em;
+}
+</style>
+
+<script>
+let selectedWords = new Set();
+let backgroundAnnotations = {};
+let currentBackgroundType = null;
+let customColor = '#ff0000';
+let customImagePath = null;
+let isDragging = false;
+let dragStartWord = null;
+let dragEndWord = null;
+
+// Background color mapping
+const backgroundColors = {
+    'green': '#4ade80',
+    'white': '#ffffff',
+    'custom_color': customColor,
+    'custom_image': '#fef3c7'
+};
+
+// Background text color mapping
+const backgroundTextColors = {
+    'green': '#000',
+    'white': '#000',
+    'custom_color': '#000',
+    'custom_image': '#000'
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyBackgroundStyles();
+    initializeAnnotations();
+    setupEventListeners();
+});
+
+function initializeAnnotations() {
+    // Load existing annotations from HTML data attributes
+    document.querySelectorAll('.word-token').forEach(token => {
+        const wordId = token.dataset.wordId;
+        const backgroundType = token.dataset.backgroundType;
+        const backgroundValue = token.dataset.backgroundValue;
+
+        if (backgroundType && backgroundType !== 'none') {
+            backgroundAnnotations[wordId] = {
+                background_type: backgroundType,
+                background_value: backgroundValue
+            };
+
+            // Apply visual styling
+            token.classList.add('annotated', `background-${backgroundType}`);
+
+            if (backgroundType === 'custom_color' && backgroundValue) {
+                token.style.backgroundColor = backgroundValue;
+            } else if (backgroundType === 'custom_image' && backgroundValue) {
+                token.style.backgroundImage = `url("${backgroundValue}")`;
+                token.style.backgroundSize = 'cover';
+            } else {
+                token.style.backgroundColor = backgroundColors[backgroundType] || '';
+                token.style.backgroundImage = '';
+            }
+        }
+    });
+}
+
+function setupEventListeners() {
+    const transcriptionText = document.getElementById('transcription-text');
+
+    // Drag selection for words
+    transcriptionText.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('word-token')) {
+            e.preventDefault();
+            isDragging = true;
+            dragStartWord = getWordIndex(e.target);
+            dragEndWord = dragStartWord;
+            clearSelection();
+            selectWordRange(dragStartWord, dragEndWord);
+            updateSelectedWordsPanel();
+        }
+    });
+
+    transcriptionText.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            const wordElement = getWordElementUnderMouse(e);
+            if (wordElement) {
+                const wordIndex = getWordIndex(wordElement);
+                if (wordIndex !== dragEndWord) {
+                    dragEndWord = wordIndex;
+                    selectWordRange(dragStartWord, dragEndWord);
+                    updateSelectedWordsPanel();
+                }
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', function(e) {
+        if (isDragging) {
+            isDragging = false;
+            dragStartWord = null;
+            dragEndWord = null;
+        }
+    });
+
+    // Prevent text selection on the container
+    transcriptionText.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+    });
+
+    // Background options
+    document.querySelectorAll('.background-option').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectBackgroundType(this.dataset.type);
+        });
+    });
+
+    // Color picker
+    document.getElementById('color-picker').addEventListener('change', function(e) {
+        customColor = e.target.value;
+        backgroundColors.custom_color = customColor;
+    });
+
+    // Image selection
+    document.getElementById('select-image-btn').addEventListener('click', function() {
+        document.getElementById('image-upload').click();
+    });
+
+    // Image upload
+    document.getElementById('image-upload').addEventListener('change', handleImageUpload);
+
+    // Save button
+    document.getElementById('save-background-btn').addEventListener('click', saveAnnotations);
+
+    // Clear button
+    document.getElementById('clear-backgrounds-btn').addEventListener('click', clearAllAnnotations);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+A to select all
+        if (e.ctrlKey && e.key === 'a') {
+            e.preventDefault();
+            selectAllWords();
+        }
+        // Escape to clear selection
+        if (e.key === 'Escape') {
+            clearSelection();
+        }
+    });
+}
+
+function getWordIndex(wordElement) {
+    const allWords = Array.from(document.querySelectorAll('.word-token'));
+    return allWords.indexOf(wordElement);
+}
+
+function getWordElementUnderMouse(e) {
+    const element = document.elementFromPoint(e.clientX, e.clientY);
+    if (element && element.classList.contains('word-token')) {
+        return element;
+    }
+    return null;
+}
+
+function selectWordRange(startIndex, endIndex) {
+    const allWords = document.querySelectorAll('.word-token');
+    const start = Math.min(startIndex, endIndex);
+    const end = Math.max(startIndex, endIndex);
+
+    // Clear current selection
+    clearSelection();
+
+    // Select words in range
+    for (let i = start; i <= end; i++) {
+        const wordElement = allWords[i];
+        if (wordElement) {
+            const wordId = wordElement.dataset.wordId;
+            selectedWords.add(wordId);
+            wordElement.classList.add('selected');
+        }
+    }
+}
+
+function clearSelection() {
+    selectedWords.forEach(wordId => {
+        const token = document.querySelector(`[data-word-id="${wordId}"]`);
+        if (token) token.classList.remove('selected');
+    });
+    selectedWords.clear();
+    updateSelectedWordsPanel();
+}
+
+function selectAllWords() {
+    document.querySelectorAll('.word-token').forEach(token => {
+        const wordId = token.dataset.wordId;
+        selectedWords.add(wordId);
+        token.classList.add('selected');
+    });
+    updateSelectedWordsPanel();
+}
+
+function selectBackgroundType(type) {
+    currentBackgroundType = type;
+
+    // Update button states
+    document.querySelectorAll('.background-option').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`[data-type="${type}"]`).classList.add('active');
+
+    // Show/hide relevant sections
+    document.getElementById('color-picker-section').style.display = type === 'custom_color' ? 'block' : 'none';
+    document.getElementById('image-upload-section').style.display = type === 'custom_image' ? 'block' : 'none';
+
+    // Apply background to selected words (only if we have what we need)
+    if (selectedWords.size > 0 && currentBackgroundType) {
+        // For custom_image, we need an uploaded image
+        if (type === 'custom_image' && !customImagePath) {
+            // Don't apply yet - user needs to select image first
+            return;
+        }
+        applyBackgroundToSelected();
+    }
+}
+
+function applyBackgroundToSelected() {
+    if (selectedWords.size === 0 || !currentBackgroundType) return;
+
+    selectedWords.forEach(wordId => {
+        applyBackgroundToWord(wordId, currentBackgroundType);
+    });
+
+    clearSelection();
+}
+
+function applyBackgroundToWord(wordId, backgroundType) {
+    backgroundAnnotations[wordId] = {
+        background_type: backgroundType,
+        background_value: backgroundType === 'custom_color' ? customColor : (backgroundType === 'custom_image' ? customImagePath : '')
+    };
+
+    const token = document.querySelector(`[data-word-id="${wordId}"]`);
+
+    // Remove existing background classes
+    token.classList.forEach(cls => {
+        if (cls.startsWith('background-')) {
+            token.classList.remove(cls);
+        }
+    });
+
+    token.classList.add('annotated', `background-${backgroundType}`);
+
+    // Apply custom styling
+    if (backgroundType === 'custom_color') {
+        token.style.backgroundColor = customColor;
+    } else if (backgroundType === 'custom_image' && customImagePath) {
+        token.style.backgroundImage = `url("${customImagePath}")`;
+        token.style.backgroundSize = 'cover';
+    } else {
+        token.style.backgroundColor = backgroundColors[backgroundType] || '';
+        token.style.backgroundImage = '';
+    }
+}
+
+function applyBackgroundStyles() {
+    const style = document.createElement('style');
+    let css = '';
+
+    Object.keys(backgroundColors).forEach(background => {
+        css += `.background-${background} { background-color: ${backgroundColors[background]} !important; color: ${backgroundTextColors[background]} !important; }\n`;
+    });
+
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+function selectBackgroundForAll(background) {
+    if (selectedWords.size === 0) {
+        showWarning('Please select some words first.', () => selectAllWords());
+        return;
+    }
+
+    assignBackgroundToSelected(background);
+}
+
+function assignBackgroundToSelected(background) {
+    if (selectedWords.size === 0) return;
+
+    // For special background types, show additional UI
+    if (background === 'custom_color') {
+        document.getElementById('color-picker-section').style.display = 'block';
+        document.getElementById('image-selection-section').style.display = 'none';
+    } else if (background === 'custom_image') {
+        document.getElementById('color-picker-section').style.display = 'none';
+        document.getElementById('image-selection-section').style.display = 'block';
+        if (!customImagePath) {
+            showWarning('Please select an image first.', () => document.getElementById('select-image-btn').click());
+            return;
+        }
+    } else {
+        document.getElementById('color-picker-section').style.display = 'none';
+        document.getElementById('image-selection-section').style.display = 'none';
+    }
+
+    selectedWords.forEach(wordId => {
+        assignBackgroundToWord(wordId, background);
+    });
+
+    clearSelection();
+    updateCoverageStatus();
+}
+
+function assignBackgroundToWord(wordId, background) {
+    backgroundAnnotations[wordId] = {
+        background_type: background,
+        background_value: background === 'custom_color' ? customColor : (background === 'custom_image' ? customImagePath : '')
+    };
+
+    const token = document.querySelector(`[data-word-id="${wordId}"]`);
+
+    // Remove existing background classes
+    token.classList.forEach(cls => {
+        if (cls.startsWith('background-')) {
+            token.classList.remove(cls);
+        }
+    });
+
+    token.classList.add('annotated', `background-${background}`);
+
+    // Apply custom styling
+    if (background === 'custom_color') {
+        token.style.backgroundColor = customColor;
+    } else if (background === 'custom_image' && customImagePath) {
+        token.style.backgroundImage = `url("${customImagePath}")`;
+        token.style.backgroundSize = 'cover';
+    } else {
+        token.style.backgroundColor = backgroundColors[background] || '';
+        token.style.backgroundImage = '';
+    }
+}
+
+function updateCoverageStatus() {
+    const totalWords = document.querySelectorAll('.word-token').length;
+    const annotatedWords = Object.keys(backgroundAnnotations).length;
+    const coverageText = document.getElementById('coverage-text');
+
+    coverageText.textContent = `${annotatedWords}/${totalWords} words annotated`;
+
+    const alert = document.getElementById('coverage-alert');
+    if (annotatedWords === totalWords) {
+        alert.className = 'alert alert-success';
+    } else {
+        alert.className = 'alert alert-warning';
+    }
+}
+
+function updateSelectedWordsPanel() {
+    const panel = document.getElementById('selected-words-panel');
+    const countElement = document.getElementById('selected-count');
+    const listElement = document.getElementById('selected-words-list');
+
+    countElement.textContent = selectedWords.size;
+
+    if (selectedWords.size > 0) {
+        panel.style.display = 'block';
+        const words = Array.from(selectedWords).map(wordId => {
+            const token = document.querySelector(`[data-word-id="${wordId}"]`);
+            return token ? token.textContent.trim() : wordId;
+        });
+        listElement.textContent = words.join(', ');
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Update UI to show selected file
+    document.getElementById('selected-image-name').textContent = `Selected: ${file.name}`;
+    document.getElementById('selected-image-name').className = 'text-success';
+
+    const formData = new FormData();
+    formData.append('background_image', file);
+
+    fetch(`/annotation/transcription/{{ transcription.id }}/background/upload/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            customImagePath = data.image_path;
+            document.getElementById('selected-image-name').textContent = `Uploaded: ${data.filename}`;
+
+            // If custom_image is the active background type and words are selected, apply it
+            if (currentBackgroundType === 'custom_image' && selectedWords.size > 0) {
+                applyBackgroundToSelected();
+            }
+
+            showWarning(`Image uploaded successfully: ${data.filename}`, () => {});
+        } else {
+            document.getElementById('selected-image-name').textContent = 'Upload failed';
+            document.getElementById('selected-image-name').className = 'text-danger';
+            showWarning(data.error || 'Upload failed');
+        }
+    })
+    .catch(error => {
+        document.getElementById('selected-image-name').textContent = 'Upload error';
+        document.getElementById('selected-image-name').className = 'text-danger';
+        showWarning('Upload error: ' + error.message);
+    });
+}
+
+function clearAllAnnotations() {
+    if (Object.keys(backgroundAnnotations).length === 0) return;
+
+    showWarning('Are you sure you want to clear all background annotations?', () => {
+        backgroundAnnotations = {};
+        document.querySelectorAll('.word-token').forEach(token => {
+            token.classList.forEach(cls => {
+                if (cls.startsWith('background-') || cls === 'annotated') {
+                    token.classList.remove(cls);
+                }
+            });
+            token.style.backgroundColor = '';
+            token.style.backgroundImage = '';
+        });
+    });
+}
+
+function saveAnnotations() {
+    const btn = document.getElementById('save-background-btn');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    const annotations = Object.entries(backgroundAnnotations).map(([wordId, data]) => ({
+        word_timestamp_id: parseInt(wordId),
+        background_type: data.background_type,
+        background_value: data.background_value
+    }));
+
+    fetch(`/annotation/transcription/{{ transcription.id }}/background/save/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ annotations: annotations })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showWarning(data.message, () => location.reload());
+        } else {
+            showWarning(data.error || 'Save failed');
+        }
+    })
+    .catch(error => {
+        showWarning('Network error: ' + error.message);
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+}
+
+function showWarning(message, onConfirm = null) {
+    const modal = new bootstrap.Modal(document.getElementById('warningModal'));
+    const body = document.getElementById('warning-modal-body');
+    const confirmBtn = document.getElementById('warning-modal-confirm');
+
+    body.textContent = message;
+
+    if (onConfirm) {
+        confirmBtn.style.display = 'inline-block';
+        confirmBtn.onclick = () => {
+            modal.hide();
+            onConfirm();
+        };
+    } else {
+        confirmBtn.style.display = 'none';
+    }
+
+    modal.show();
+}
+</script>
+
+{% endblock %}

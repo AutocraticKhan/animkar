@@ -36,10 +36,14 @@
                                class="btn btn-warning btn-sm">
                                 🎬 Mode
                             </a>
-                            <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
-                               class="btn btn-primary btn-sm">
-                                👥 Characters
-                            </a>
+                        <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
+                           class="btn btn-primary btn-sm">
+                            👥 Characters
+                        </a>
+                        <a href="{% url 'annotation:annotate_background' transcription.pk %}"
+                           class="btn btn-success btn-sm">
+                            🎨 Background
+                        </a>
                         </div>
                     {% endif %}
 

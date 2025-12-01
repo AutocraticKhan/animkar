@@ -120,3 +120,32 @@ class CharacterAnnotation(models.Model):
 
     def __str__(self):
         return f"{self.word_timestamp.word}: {self.character}"
+
+class BackgroundAnnotation(models.Model):
+    BACKGROUND_CHOICES = [
+        ('green', 'Green Background'),
+        ('white', 'White Background'),
+        ('custom_color', 'Custom Color'),
+        ('custom_image', 'Custom Image'),
+    ]
+
+    word_timestamp = models.OneToOneField(
+        WordTimestamp,
+        on_delete=models.CASCADE,
+        related_name='background_annotation'
+    )
+    background_type = models.CharField(max_length=20, choices=BACKGROUND_CHOICES)
+    background_value = models.CharField(max_length=500, blank=True, null=True)  # Hex color or image path
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Optional: confidence score if auto-generated
+    confidence = models.FloatField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['word_timestamp__start_time_seconds']
+
+    def __str__(self):
+        return f"{self.word_timestamp.word}: {self.background_type}"

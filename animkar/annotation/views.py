@@ -1,13 +1,18 @@
 import os
 import json
 import requests
+import shutil
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib import messages
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.core.serializers.json import DjangoJSONEncoder
 from audio_transcription.models import AudioTranscription, WordTimestamp
-from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation
+from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation, BackgroundAnnotation
 
 def annotate_transcription(request, transcription_id):
     """Display the emotion annotation interface for a transcription"""
@@ -594,3 +599,123 @@ def save_character_annotations(request, transcription_id):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+def annotate_background(request, transcription_id):
+    """Display the background annotation interface for a transcription"""
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    # Get all word timestamps for this transcription
+    word_timestamps = transcription.word_timestamps.all()
+
+    # Get existing annotations as a simple dict for template access
+    existing_annotations_dict = {}
+    for ann in BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription):
+        existing_annotations_dict[str(ann.word_timestamp_id)] = {
+            'background_type': ann.background_type,
+            'background_value': ann.background_value
+        }
+
+    # Annotate word_timestamps with their backgrounds
+    for wt in word_timestamps:
+        wt.background = existing_annotations_dict.get(str(wt.id), {'background_type': 'none', 'background_value': ''})
+
+    # Check for complete coverage
+    total_words = word_timestamps.count()
+    annotated_words = len(existing_annotations_dict)
+    coverage_complete = total_words == annotated_words
+
+    context = {
+        'transcription': transcription,
+        'word_timestamps': word_timestamps,
+        'background_choices': BackgroundAnnotation.BACKGROUND_CHOICES,
+        'coverage_complete': coverage_complete,
+        'missing_words': total_words - annotated_words,
+    }
+
+    return render(request, 'annotation/annotate_background.html', context)
+
+@require_POST
+@csrf_exempt
+def save_background_annotations(request, transcription_id):
+    """Save background annotations for words"""
+    try:
+        data = json.loads(request.body)
+        annotations = data.get('annotations', [])
+
+        transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+        for annotation_data in annotations:
+            word_timestamp_id = annotation_data.get('word_timestamp_id')
+            background_type = annotation_data.get('background_type', '')
+            background_value = annotation_data.get('background_value', '')
+
+            if not word_timestamp_id:
+                continue
+
+            if background_type and background_type not in dict(BackgroundAnnotation.BACKGROUND_CHOICES):
+                return JsonResponse({'error': f'Invalid background type: {background_type}'}, status=400)
+
+            word_timestamp = get_object_or_404(WordTimestamp, id=word_timestamp_id, transcription=transcription)
+
+            if background_type and background_type != 'none':
+                BackgroundAnnotation.objects.update_or_create(
+                    word_timestamp=word_timestamp,
+                    defaults={
+                        'background_type': background_type,
+                        'background_value': background_value
+                    }
+                )
+            else:
+                # Remove annotation if background_type is 'none'
+                BackgroundAnnotation.objects.filter(word_timestamp=word_timestamp).delete()
+
+        return JsonResponse({'success': True, 'message': 'Background annotations saved successfully'})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_POST
+@csrf_exempt
+def upload_background_image(request, transcription_id):
+    """Handle background image upload for a transcription"""
+    try:
+        transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+        if 'background_image' not in request.FILES:
+            return JsonResponse({'error': 'No image file provided'}, status=400)
+
+        image_file = request.FILES['background_image']
+
+        # Validate file type
+        allowed_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/bmp', 'image/gif']
+        if hasattr(image_file, 'content_type') and image_file.content_type not in allowed_types:
+            return JsonResponse({'error': 'Invalid file type. Only PNG, JPG, BMP, and GIF are allowed.'}, status=400)
+
+        # Create project media directory if it doesn't exist
+        project_dir = os.path.join('projects', str(transcription.project.id))
+        media_dir = os.path.join(project_dir, 'media')
+        os.makedirs(media_dir, exist_ok=True)
+
+        # Generate unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        original_name = os.path.splitext(image_file.name)[0]
+        extension = os.path.splitext(image_file.name)[1]
+        unique_filename = f"{original_name}_{timestamp}{extension}"
+
+        # Save the file
+        file_path = os.path.join(media_dir, unique_filename)
+        with open(file_path, 'wb+') as destination:
+            for chunk in image_file.chunks():
+                destination.write(chunk)
+
+        # Return the relative path for storage in annotation
+        relative_path = f"projects/{transcription.project.id}/media/{unique_filename}"
+
+        return JsonResponse({
+            'success': True,
+            'image_path': relative_path,
+            'filename': unique_filename
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
