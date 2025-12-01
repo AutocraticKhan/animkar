@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from audio_transcription.models import AudioTranscription, WordTimestamp
-from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation
+from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation
 
 def annotate_transcription(request, transcription_id):
     """Display the emotion annotation interface for a transcription"""
@@ -521,3 +521,76 @@ def auto_annotate_body_posture(request, transcription_id):
         return JsonResponse({'error': f'Failed to parse AI response: {str(e)}'}, status=500)
     except Exception as e:
         return JsonResponse({'error': f'Unexpected error: {str(e)}'}, status=500)
+
+
+def annotate_characters(request, transcription_id):
+    """Display the character annotation interface for a transcription"""
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    word_timestamps = transcription.word_timestamps.all()
+
+    existing_annotations_dict = {}
+    for ann in CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription):
+        existing_annotations_dict[str(ann.word_timestamp_id)] = ann.character
+
+    for wt in word_timestamps:
+        wt.character = existing_annotations_dict.get(str(wt.id), 'none')
+
+    total_words = word_timestamps.count()
+    annotated_words = len(existing_annotations_dict)
+    coverage_complete = total_words == annotated_words
+
+    context = {
+        'transcription': transcription,
+        'word_timestamps': word_timestamps,
+        'character_choices': CharacterAnnotation.CHARACTER_CHOICES,
+        'coverage_complete': coverage_complete,
+        'missing_words': total_words - annotated_words,
+    }
+
+    return render(request, 'annotation/annotate_characters.html', context)
+
+@require_POST
+@csrf_exempt
+def save_character_annotations(request, transcription_id):
+    """Save character annotations for words"""
+    try:
+        data = json.loads(request.body)
+        annotations = data.get('annotations', [])
+
+        transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+        word_timestamp_ids = set(transcription.word_timestamps.values_list('id', flat=True))
+        annotated_ids = set()
+
+        for annotation in annotations:
+            word_timestamp_id = annotation.get('word_timestamp_id')
+            character = annotation.get('character')
+
+            if not word_timestamp_id or not character:
+                return JsonResponse({'error': 'Invalid annotation data'}, status=400)
+
+            if character not in dict(CharacterAnnotation.CHARACTER_CHOICES):
+                return JsonResponse({'error': f'Invalid character: {character}'}, status=400)
+
+            annotated_ids.add(word_timestamp_id)
+
+            word_timestamp = get_object_or_404(WordTimestamp, id=word_timestamp_id, transcription=transcription)
+            CharacterAnnotation.objects.update_or_create(
+                word_timestamp=word_timestamp,
+                defaults={'character': character}
+            )
+
+        missing_ids = word_timestamp_ids - annotated_ids
+        if missing_ids:
+            for word_id in missing_ids:
+                word_timestamp = WordTimestamp.objects.get(id=word_id)
+                CharacterAnnotation.objects.update_or_create(
+                    word_timestamp=word_timestamp,
+                    defaults={'character': 'character1'} # Default to Character 1
+                )
+
+        return JsonResponse({'success': True, 'message': 'Character annotations saved successfully'})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

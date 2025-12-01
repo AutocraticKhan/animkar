@@ -13,4 +13,6 @@ urlpatterns = [
     path('transcription/<int:transcription_id>/mode/', views.annotate_mode, name='annotate_mode'),
     path('transcription/<int:transcription_id>/mode/save/', views.save_mode_annotations, name='save_mode_annotations'),
     path('transcription/<int:transcription_id>/mode/auto-annotate/', views.auto_annotate_mode, name='auto_annotate_mode'),
+    path('transcription/<int:transcription_id>/characters/', views.annotate_characters, name='annotate_characters'),
+    path('transcription/<int:transcription_id>/characters/save/', views.save_character_annotations, name='save_character_annotations'),
 ]

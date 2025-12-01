@@ -96,3 +96,27 @@ class ModeAnnotation(models.Model):
 
     def __str__(self):
         return f"{self.word_timestamp.word}: {self.mode}"
+
+
+class CharacterAnnotation(models.Model):
+    CHARACTER_CHOICES = [
+        ('character1', 'Character 1'),
+        ('character2', 'Character 2'),
+    ]
+
+    word_timestamp = models.OneToOneField(
+        WordTimestamp,
+        on_delete=models.CASCADE,
+        related_name='character_annotation'
+    )
+    character = models.CharField(max_length=20, choices=CHARACTER_CHOICES)
+
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['word_timestamp__start_time_seconds']
+
+    def __str__(self):
+        return f"{self.word_timestamp.word}: {self.character}"

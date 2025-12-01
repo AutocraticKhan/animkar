@@ -1,6 +1,6 @@
 {% extends "project_manager/base.html" %}
 
-{% block title %}Body Posture Annotation - {{ transcription.original_filename }}{% endblock %}
+{% block title %}Character Annotation - {{ transcription.original_filename }}{% endblock %}
 
 {% block content %}
 {% csrf_token %}
@@ -12,7 +12,7 @@
                     <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
                     <li class="breadcrumb-item"><a href="{% url 'project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
                     <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
-                    <li class="breadcrumb-item active">Body Posture Annotation</li>
+                    <li class="breadcrumb-item active">Character Annotation</li>
                 </ol>
             </nav>
         </div>
@@ -32,11 +32,11 @@
                             📝 Transcription
                         </a>
                         <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
-                           class="btn btn-primary btn-sm">
+                           class="btn btn-info btn-sm">
                             🎨 Emotion
                         </a>
                         <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
-                           class="btn btn-info btn-sm active">
+                           class="btn btn-info btn-sm">
                             💃 Body
                         </a>
                         <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
@@ -44,7 +44,7 @@
                             🎬 Mode
                         </a>
                         <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
-                           class="btn btn-info btn-sm">
+                           class="btn btn-primary btn-sm active">
                             👥 Characters
                         </a>
                     </div>
@@ -52,12 +52,12 @@
             </div>
         </div>
 
-        <!-- Main Content: Body Posture Annotation -->
+        <!-- Main Content: Character Annotation -->
         <div class="col-md-10">
             <div class="card">
                 <div class="card-header">
                     <h2 class="mb-0">
-                        Body Posture Annotation: {{ transcription.original_filename }}
+                        Character Annotation: {{ transcription.original_filename }}
                         <small class="text-muted">({{ word_timestamps|length }} words)</small>
                     </h2>
                 </div>
@@ -76,27 +76,24 @@
 
                     <!-- Controls -->
                     <div class="mb-3">
-                        <button type="button" class="btn btn-primary" id="auto-annotate-btn">
-                            <i class="fas fa-robot"></i> Auto-Annotate with AI
-                        </button>
                         <button type="button" class="btn btn-success" id="save-annotations-btn">
                             <i class="fas fa-save"></i> Save Annotations
                         </button>
                     </div>
 
-                    <!-- Posture Legend -->
+                    <!-- Character Legend -->
                     <div class="mb-3">
-                        <h5>Body Posture Legend:</h5>
+                        <h5>Character Legend:</h5>
                         <div class="row">
-                            {% for posture_key, posture_label in posture_choices %}
-                            <div class="col-md-2 col-sm-4 mb-2">
-                                <span class="badge posture-badge posture-{{ posture_key }}" style="cursor: pointer;" onclick="selectPostureForAll('{{ posture_key }}')">
-                                    {{ posture_label }}
+                            {% for character_key, character_label in character_choices %}
+                            <div class="col-md-3 col-sm-6 mb-2">
+                                <span class="badge character-badge character-{{ character_key }}" style="cursor: pointer;" onclick="selectCharacterForAll('{{ character_key }}')">
+                                    {{ character_label }}
                                 </span>
                             </div>
                             {% endfor %}
                         </div>
-                        <small class="text-muted">Click a posture badge to assign it to all selected words, or drag to select multiple words below.</small>
+                        <small class="text-muted">Click a character badge to assign it to all selected words, or drag to select multiple words below.</small>
                     </div>
 
                     <!-- Transcription Text -->
@@ -104,7 +101,7 @@
                         {% for word_timestamp in word_timestamps %}
                         <span class="word-token"
                               data-word-id="{{ word_timestamp.id }}"
-                              data-posture="{{ word_timestamp.posture }}">
+                              data-character="{{ word_timestamp.character }}">
                             {{ word_timestamp.word }}
                         </span>
                         {% endfor %}
@@ -118,10 +115,11 @@
                             </div>
                             <div class="card-body">
                                 <div id="selected-words-list" class="mb-3"></div>
-                                <small class="text-muted">Use the posture badges above to assign postures to selected words.</small>
+                                <small class="text-muted">Use the character badges above to assign characters to selected words.</small>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -179,48 +177,28 @@
     overflow-y: auto;
 }
 
-/* Posture color coding - applied via JavaScript */
+/* Character color coding - applied via JavaScript */
 
-.posture-badge {
+.character-badge {
     font-size: 14px;
     padding: 6px 12px;
 }
 
-.posture-btn {
+.character-btn {
     margin: 2px;
 }
 </style>
 
 <script>
-// Posture color mapping (inspired by PyQt code)
-const postureColors = {
-    'brave': '#ff6b6b',
-    'cross_hands': '#a9a9a9',
-    'hello': '#90ee90',
-    'listen': '#74c0fc',
-    'me': '#ffd93d',
-    'no': '#d0bfff',
-    'point': '#c0c0c0',
-    'that': '#ffa500',
-    'think': '#98d8c8',
-    'this': '#f7dc6f',
-    'why': '#bb8fce',
-    'wow': '#f8c471'
+// Character color mapping
+const characterColors = {
+    'character1': '#6c757d', // Grey
+    'character2': '#007bff'  // Blue
 };
 
-const postureTextColors = {
-    'brave': '#fff',
-    'cross_hands': '#000',
-    'hello': '#000',
-    'listen': '#000',
-    'me': '#000',
-    'no': '#000',
-    'point': '#000',
-    'that': '#000',
-    'think': '#000',
-    'this': '#000',
-    'why': '#000',
-    'wow': '#000'
+const characterTextColors = {
+    'character1': '#fff',
+    'character2': '#fff'
 };
 
 let selectedWords = new Set();
@@ -230,17 +208,17 @@ let dragStartWord = null;
 let dragEndWord = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    applyPostureStyles();
+    applyCharacterStyles();
     initializeAnnotations();
     setupEventListeners();
 });
 
-function applyPostureStyles() {
+function applyCharacterStyles() {
     const style = document.createElement('style');
     let css = '';
 
-    Object.keys(postureColors).forEach(posture => {
-        css += `.posture-${posture} { background-color: ${postureColors[posture]} !important; color: ${postureTextColors[posture]} !important; }\n`;
+    Object.keys(characterColors).forEach(character => {
+        css += `.character-${character} { background-color: ${characterColors[character]} !important; color: ${characterTextColors[character]} !important; }\n`;
     });
 
     style.textContent = css;
@@ -251,11 +229,11 @@ function initializeAnnotations() {
     // Load existing annotations
     document.querySelectorAll('.word-token').forEach(token => {
         const wordId = token.dataset.wordId;
-        const posture = token.dataset.posture;
+        const character = token.dataset.character;
 
-        if (posture && posture !== 'none') {
-            wordAnnotations[wordId] = posture;
-            token.classList.add('annotated', `posture-${posture}`);
+        if (character && character !== 'none') {
+            wordAnnotations[wordId] = character;
+            token.classList.add('annotated', `character-${character}`);
         }
     });
 }
@@ -335,9 +313,6 @@ function setupEventListeners() {
         e.preventDefault();
     });
 
-    // Auto-annotate button
-    document.getElementById('auto-annotate-btn').addEventListener('click', autoAnnotate);
-
     // Save annotations button
     document.getElementById('save-annotations-btn').addEventListener('click', saveAnnotations);
 
@@ -387,39 +362,39 @@ function clearSelection() {
     updateSelectedWordsPanel();
 }
 
-function selectPostureForAll(posture) {
+function selectCharacterForAll(character) {
     if (selectedWords.size === 0) {
         showWarning('Please select some words first.', () => selectAllWords());
         return;
     }
 
-    assignPostureToSelected(posture);
+    assignCharacterToSelected(character);
 }
 
-function assignPostureToSelected(posture) {
+function assignCharacterToSelected(character) {
     if (selectedWords.size === 0) return;
 
     selectedWords.forEach(wordId => {
-        assignPostureToWord(wordId, posture);
+        assignCharacterToWord(wordId, character);
     });
 
     clearSelection();
     updateCoverageStatus();
 }
 
-function assignPostureToWord(wordId, posture) {
-    wordAnnotations[wordId] = posture;
+function assignCharacterToWord(wordId, character) {
+    wordAnnotations[wordId] = character;
 
     const token = document.querySelector(`[data-word-id="${wordId}"]`);
 
-    // Remove existing posture classes
+    // Remove existing character classes
     token.classList.forEach(cls => {
-        if (cls.startsWith('posture-')) {
+        if (cls.startsWith('character-')) {
             token.classList.remove(cls);
         }
     });
 
-    token.classList.add('annotated', `posture-${posture}`);
+    token.classList.add('annotated', `character-${character}`);
 }
 
 function updateSelectedWordsPanel() {
@@ -456,38 +431,6 @@ function updateCoverageStatus() {
     }
 }
 
-function autoAnnotate() {
-    const btn = document.getElementById('auto-annotate-btn');
-    const originalText = btn.innerHTML;
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-    fetch(`/annotation/transcription/{{ transcription.id }}/body-posture/auto-annotate/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Reload the page to show new annotations
-            location.reload();
-        } else {
-            showWarning(data.error || 'Auto-annotation failed');
-        }
-    })
-    .catch(error => {
-        showWarning('Network error: ' + error.message);
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-    });
-}
-
 function saveAnnotations() {
     const totalWords = document.querySelectorAll('.word-token').length;
     const annotatedWords = Object.keys(wordAnnotations).length;
@@ -495,7 +438,7 @@ function saveAnnotations() {
     if (annotatedWords < totalWords) {
         showWarning(
             `Only ${annotatedWords} out of ${totalWords} words are annotated. ` +
-            'Unannotated words will be automatically assigned "listen" posture. Continue?',
+            'Unannotated words will be automatically assigned "Character 1". Continue?',
             () => performSave()
         );
     } else {
@@ -510,12 +453,12 @@ function performSave() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-    const annotations = Object.entries(wordAnnotations).map(([wordId, posture]) => ({
+    const annotations = Object.entries(wordAnnotations).map(([wordId, character]) => ({
         word_timestamp_id: parseInt(wordId),
-        posture: posture
+        character: character
     }));
 
-    fetch(`/annotation/transcription/{{ transcription.id }}/body-posture/save/`, {
+    fetch(`/annotation/transcription/{{ transcription.id }}/characters/save/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
