@@ -4,9 +4,52 @@
 
 {% block content %}
 {% csrf_token %}
-<div class="container-fluid mt-4">
-    <div class="row">
+<div class="container mt-4">
+    <div class="row mb-4">
         <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
+                    <li class="breadcrumb-item active">Body Posture Annotation</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Panel: Navigation -->
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h6>📋 Navigation</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2 mb-3">
+                        <a href="/transcription/{{ transcription.pk }}/"
+                           class="btn btn-outline-secondary btn-sm">
+                            📝 Transcription
+                        </a>
+                        <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
+                           class="btn btn-primary btn-sm">
+                            🎨 Emotion
+                        </a>
+                        <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
+                           class="btn btn-info btn-sm active">
+                            💃 Body
+                        </a>
+                        <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
+                           class="btn btn-warning btn-sm">
+                            🎬 Mode
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Body Posture Annotation -->
+        <div class="col-md-10">
             <div class="card">
                 <div class="card-header">
                     <h2 class="mb-0">
@@ -35,12 +78,6 @@
                         <button type="button" class="btn btn-success" id="save-annotations-btn">
                             <i class="fas fa-save"></i> Save Annotations
                         </button>
-                        <a href="{% url 'annotation:annotate_transcription' transcription.pk %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Emotion Annotation
-                        </a>
-                        <a href="{% url 'annotation:annotate_mode' transcription.pk %}" class="btn btn-primary">
-                            <i class="fas fa-tv"></i> Continue to Mode Annotation
-                        </a>
                     </div>
 
                     <!-- Posture Legend -->

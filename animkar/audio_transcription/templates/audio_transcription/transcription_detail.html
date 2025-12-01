@@ -15,7 +15,67 @@
     </div>
 
     <div class="row">
-        <div class="col-md-8">
+        <!-- Left Panel: Navigation -->
+        <div class="col-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h6>📋 Navigation</h6>
+                </div>
+                <div class="card-body">
+                    {% if transcription.status == 'completed' %}
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
+                               class="btn btn-primary btn-sm">
+                                🎨 Emotion
+                            </a>
+                            <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
+                               class="btn btn-info btn-sm">
+                                💃 Body
+                            </a>
+                            <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
+                               class="btn btn-warning btn-sm">
+                                🎬 Mode
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% if page_obj.paginator.num_pages > 1 %}
+                    <nav aria-label="Transcription pages">
+                        <ul class="pagination pagination-sm flex-column">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }}</span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    <small class="text-muted">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}<br>
+                        Words {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Transcription Details -->
+        <div class="col-md-7">
             <div class="card">
                 <div class="card-header">
                     <h4>{{ transcription.original_filename }}</h4>
@@ -64,7 +124,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for word in word_timestamps %}
+                                    {% for word in page_obj %}
                                     <tr>
                                         <td>
                                             <code>{{ word.word }}</code>
@@ -94,7 +154,7 @@
                             </table>
                         </div>
 
-                        {% if word_timestamps|length == 0 %}
+                        {% if page_obj|length == 0 %}
                         <div class="alert alert-warning">
                             No word timestamps were extracted from this audio file.
                         </div>
@@ -128,7 +188,8 @@
             </div>
         </div>
 
-        <div class="col-md-4">
+        <!-- Right Sidebar: Audio Info and Actions -->
+        <div class="col-md-3">
             <div class="card">
                 <div class="card-header">
                     <h5>Audio File Info</h5>
@@ -155,18 +216,8 @@
                     <h5>Actions</h5>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'project_detail' project.pk %}" class="btn btn-outline-primary btn-sm">Back to Project</a>
                     {% if transcription.status == 'completed' %}
                         <button class="btn btn-outline-secondary btn-sm" onclick="exportTimestamps()">Export CSV</button>
-                        <a href="{% url 'annotation:annotate_transcription' transcription.pk %}" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-heart"></i> Emotion Annotate
-                        </a>
-                        <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-user"></i> Body Posture Annotate
-                        </a>
-                        <a href="{% url 'annotation:annotate_mode' transcription.pk %}" class="btn btn-outline-warning btn-sm">
-                            <i class="fas fa-tv"></i> Mode Annotate
-                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -187,12 +238,12 @@ function exportTimestamps() {
 
     const csvContent = rows.map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = '{{ transcription.original_filename|slice:"-4"|escapejs }}_timestamps.csv';
     a.click();
-    window.URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
 }
 </script>
 {% endblock %}

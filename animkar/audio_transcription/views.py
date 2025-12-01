@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.generic import DeleteView
 from django.utils import timezone
+from django.core.paginator import Paginator
 from project_manager.models import Project
 from .models import AudioTranscription, WordTimestamp
 from .transcription_utils import (
@@ -119,12 +120,16 @@ def transcription_detail(request, transcription_id):
     """Display detailed transcription results"""
     transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
 
-    # Get word timestamps
+    # Get word timestamps with pagination
     word_timestamps = transcription.word_timestamps.all()
+    paginator = Paginator(word_timestamps, 50)  # 50 words per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'transcription': transcription,
-        'word_timestamps': word_timestamps,
+        'page_obj': page_obj,
+        'word_timestamps': word_timestamps,  # Keep full list for CSV export
         'project': transcription.project,
     }
 
