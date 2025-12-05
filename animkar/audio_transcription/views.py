@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from project_manager.models import Project
 from .models import AudioTranscription, WordTimestamp
+from annotation.models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation, BackgroundAnnotation
 from .transcription_utils import (
     load_or_download_model,
     transcribe_audio_with_accurate_timestamps,
@@ -120,6 +121,29 @@ def transcription_detail(request, transcription_id):
     """Display detailed transcription results"""
     transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
 
+    # Calculate coverage status for all annotation types
+    coverage_status = {}
+
+    # Emotion coverage
+    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['emotion_complete'] = emotion_count == transcription.total_words
+
+    # Body posture coverage
+    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['body_complete'] = body_count == transcription.total_words
+
+    # Mode coverage
+    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['mode_complete'] = mode_count == transcription.total_words
+
+    # Characters coverage
+    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['characters_complete'] = characters_count == transcription.total_words
+
+    # Background coverage
+    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['background_complete'] = background_count == transcription.total_words
+
     # Get word timestamps with pagination
     word_timestamps = transcription.word_timestamps.all()
     paginator = Paginator(word_timestamps, 50)  # 50 words per page
@@ -131,6 +155,7 @@ def transcription_detail(request, transcription_id):
         'page_obj': page_obj,
         'word_timestamps': word_timestamps,  # Keep full list for CSV export
         'project': transcription.project,
+        'coverage_status': coverage_status,
     }
 
     return render(request, 'audio_transcription/transcription_detail.html', context)

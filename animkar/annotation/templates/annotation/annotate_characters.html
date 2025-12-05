@@ -19,42 +19,7 @@
     </div>
 
     <div class="row">
-        <!-- Left Panel: Navigation -->
-        <div class="col-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h6>📋 Navigation</h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2 mb-3">
-                        <a href="/transcription/{{ transcription.pk }}/"
-                           class="btn btn-outline-secondary btn-sm">
-                            📝 Transcription
-                        </a>
-                        <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
-                           class="btn btn-info btn-sm">
-                            🎨 Emotion
-                        </a>
-                        <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
-                           class="btn btn-info btn-sm">
-                            💃 Body
-                        </a>
-                        <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
-                           class="btn btn-warning btn-sm">
-                            🎬 Mode
-                        </a>
-                        <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
-                           class="btn btn-primary btn-sm active">
-                            👥 Characters
-                        </a>
-                        <a href="{% url 'annotation:annotate_background' transcription.pk %}"
-                           class="btn btn-info btn-sm">
-                            🎨 Background
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "annotation/annotation_navigation.html" with active_page="characters" %}
 
         <!-- Main Content: Character Annotation -->
         <div class="col-md-10">

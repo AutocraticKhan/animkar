@@ -1,0 +1,97 @@
+<!-- Left Panel: Navigation -->
+<div class="col-md-2">
+    <div class="card">
+        <div class="card-header">
+            <h6>📋 Navigation</h6>
+        </div>
+        <div class="card-body">
+            <div class="d-grid gap-2 mb-3">
+                <a href="/transcription/{{ transcription.pk }}/"
+                   class="btn btn-outline-secondary btn-sm">
+                    📝 Transcription
+                </a>
+                {% comment %} Emotion Button {% endcomment %}
+                <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if coverage_status.emotion_complete %}btn-success{% elif active_page == 'emotion' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   title="{% if coverage_status.emotion_complete %}Complete{% else %}In Progress{% endif %}">
+                    🎨 Emotion
+                </a>
+                {% comment %} Body Posture Button {% endcomment %}
+                <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if coverage_status.body_complete %}btn-success{% elif active_page == 'body' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   title="{% if coverage_status.body_complete %}Complete{% else %}In Progress{% endif %}">
+                    💃 Body
+                </a>
+                {% comment %} Mode Button {% endcomment %}
+                <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if coverage_status.mode_complete %}btn-success{% elif active_page == 'mode' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   title="{% if coverage_status.mode_complete %}Complete{% else %}In Progress{% endif %}">
+                    🎬 Mode
+                </a>
+                {% comment %} Characters Button {% endcomment %}
+                <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if coverage_status.characters_complete %}btn-success{% elif active_page == 'characters' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   title="{% if coverage_status.characters_complete %}Complete{% else %}In Progress{% endif %}">
+                    👥 Characters
+                </a>
+                {% comment %} Background Button {% endcomment %}
+                <a href="{% url 'annotation:annotate_background' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if coverage_status.background_complete %}btn-success{% elif active_page == 'background' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   title="{% if coverage_status.background_complete %}Complete{% else %}In Progress{% endif %}">
+                    🎨 Background
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Navigation button styling */
+.annotation-nav-btn {
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+.annotation-nav-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Tooltip styling */
+.annotation-nav-btn[title] {
+    position: relative;
+}
+
+.annotation-nav-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.annotation-nav-btn[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0,0,0,0.8);
+    margin-bottom: 0;
+    z-index: 1000;
+}
+</style>

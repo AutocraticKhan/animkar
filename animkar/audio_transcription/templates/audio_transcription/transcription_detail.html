@@ -15,72 +15,7 @@
     </div>
 
     <div class="row">
-        <!-- Left Panel: Navigation -->
-        <div class="col-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h6>📋 Navigation</h6>
-                </div>
-                <div class="card-body">
-                    {% if transcription.status == 'completed' %}
-                        <div class="d-grid gap-2 mb-3">
-                            <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
-                               class="btn btn-primary btn-sm">
-                                🎨 Emotion
-                            </a>
-                            <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
-                               class="btn btn-info btn-sm">
-                                💃 Body
-                            </a>
-                            <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
-                               class="btn btn-warning btn-sm">
-                                🎬 Mode
-                            </a>
-                        <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
-                           class="btn btn-primary btn-sm">
-                            👥 Characters
-                        </a>
-                        <a href="{% url 'annotation:annotate_background' transcription.pk %}"
-                           class="btn btn-success btn-sm">
-                            🎨 Background
-                        </a>
-                        </div>
-                    {% endif %}
-
-                    {% if page_obj.paginator.num_pages > 1 %}
-                    <nav aria-label="Transcription pages">
-                        <ul class="pagination pagination-sm flex-column">
-                            {% if page_obj.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page=1">First</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Prev</a>
-                                </li>
-                            {% endif %}
-
-                            <li class="page-item active">
-                                <span class="page-link">{{ page_obj.number }}</span>
-                            </li>
-
-                            {% if page_obj.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                    {% endif %}
-                    <small class="text-muted">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}<br>
-                        Words {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
-                    </small>
-                </div>
-            </div>
-        </div>
+        {% include "annotation/annotation_navigation.html" %}
 
         <!-- Main Content: Transcription Details -->
         <div class="col-md-7">
@@ -219,6 +154,45 @@
                 </div>
             </div>
 
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Navigation</h5>
+                </div>
+                <div class="card-body">
+                    <nav aria-label="Transcription pages">
+                        <ul class="pagination pagination-sm flex-column">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }}</span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    <small class="text-muted">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}<br>
+                        Words {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+                    </small>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="card mt-3">
                 <div class="card-header">
                     <h5>Actions</h5>
@@ -240,8 +214,14 @@ function exportTimestamps() {
         ['Word', 'Start Time (s)', 'End Time (s)', 'Confidence']
     ];
 
+    // Add word data
     {% for word in word_timestamps %}
-        rows.push(['{{ word.word|escapejs }}', '{{ word.start_time_seconds }}', '{{ word.end_time_seconds }}', '{{ word.confidence }}']);
+    rows.push([
+        "{{ word.word|escapejs }}",
+        "{{ word.start_time_seconds }}",
+        "{{ word.end_time_seconds }}",
+        "{{ word.confidence }}"
+    ]);
     {% endfor %}
 
     const csvContent = rows.map(row => row.join(',')).join('\n');
