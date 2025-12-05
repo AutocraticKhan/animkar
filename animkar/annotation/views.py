@@ -807,6 +807,80 @@ def save_background_annotations(request, transcription_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+def combined_annotations(request, transcription_id):
+    """Display all annotations combined in a single table"""
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    word_timestamps = transcription.word_timestamps.all()
+    total_words = word_timestamps.count()
+
+    # Calculate coverage status for all annotation types
+    coverage_status = {}
+    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['emotion_complete'] = emotion_count == total_words
+
+    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['body_complete'] = body_count == total_words
+
+    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['mode_complete'] = mode_count == total_words
+
+    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['characters_complete'] = characters_count == total_words
+
+    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['background_complete'] = background_count == total_words
+
+    # Build combined data for each word
+    combined_data = []
+    for wt in word_timestamps:
+        # Safely get related annotation values
+        try:
+            emotion = wt.emotion_annotation.emotion
+        except EmotionAnnotation.DoesNotExist:
+            emotion = '-'
+        
+        try:
+            body_posture = wt.body_posture_annotation.posture
+        except BodyPostureAnnotation.DoesNotExist:
+            body_posture = '-'
+        
+        try:
+            mode = wt.mode_annotation.mode
+        except ModeAnnotation.DoesNotExist:
+            mode = '-'
+        
+        try:
+            character = wt.character_annotation.character
+        except CharacterAnnotation.DoesNotExist:
+            character = '-'
+        
+        try:
+            background = wt.background_annotation.background_type
+        except BackgroundAnnotation.DoesNotExist:
+            background = '-'
+        
+        row = {
+            'word': wt.word,
+            'start_time': wt.start_time_seconds,
+            'end_time': wt.end_time_seconds,
+            'emotion': emotion,
+            'body_posture': body_posture,
+            'mode': mode,
+            'character': character,
+            'background': background,
+        }
+        combined_data.append(row)
+
+    context = {
+        'transcription': transcription,
+        'combined_data': combined_data,
+        'coverage_status': coverage_status,
+    }
+
+    return render(request, 'annotation/combined_annotations.html', context)
+
+
 @require_POST
 @csrf_exempt
 def upload_background_image(request, transcription_id):

@@ -18,4 +18,5 @@ urlpatterns = [
     path('transcription/<int:transcription_id>/background/', views.annotate_background, name='annotate_background'),
     path('transcription/<int:transcription_id>/background/save/', views.save_background_annotations, name='save_background_annotations'),
     path('transcription/<int:transcription_id>/background/upload/', views.upload_background_image, name='upload_background_image'),
+    path('transcription/<int:transcription_id>/combined/', views.combined_annotations, name='combined_annotations'),
 ]

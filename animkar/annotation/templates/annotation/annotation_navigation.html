@@ -45,6 +45,13 @@
                    title="{% if coverage_status.background_complete %}Complete{% else %}In Progress{% endif %}">
                     🎨 Background
                 </a>
+                {% comment %} Combine Button {% endcomment %}
+                <a href="{% url 'annotation:combined_annotations' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if active_page == 'combined' %}btn-primary{% else %}btn-outline-info{% endif %}"
+                   title="View all annotations combined">
+                    📊 Combine
+                </a>
             </div>
         </div>
     </div>

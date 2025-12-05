@@ -1,0 +1,150 @@
+{% extends "project_manager/base.html" %}
+
+{% block title %}Combined Annotations - {{ transcription.original_filename }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
+                    <li class="breadcrumb-item active">Combined Annotations</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        {% include "annotation/annotation_navigation.html" with active_page="combined" %}
+
+        <!-- Main Content: Combined Annotations Table -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        📊 Combined Annotations: {{ transcription.original_filename }}
+                        <small class="text-muted">({{ combined_data|length }} words)</small>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Coverage Summary -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge {% if coverage_status.emotion_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Emotion: {% if coverage_status.emotion_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.body_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Body: {% if coverage_status.body_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.mode_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Mode: {% if coverage_status.mode_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.characters_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Characters: {% if coverage_status.characters_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.background_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Background: {% if coverage_status.background_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Combined Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Word</th>
+                                    <th>Start (s)</th>
+                                    <th>End (s)</th>
+                                    <th>Emotion</th>
+                                    <th>Body Posture</th>
+                                    <th>Mode</th>
+                                    <th>Character</th>
+                                    <th>Background</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in combined_data %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><strong>{{ row.word }}</strong></td>
+                                    <td>{{ row.start_time|floatformat:2 }}</td>
+                                    <td>{{ row.end_time|floatformat:2 }}</td>
+                                    <td>
+                                        {% if row.emotion != '-' %}
+                                            <span class="badge emotion-{{ row.emotion }}">{{ row.emotion }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if row.body_posture != '-' %}
+                                            <span class="badge bg-info">{{ row.body_posture }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if row.mode != '-' %}
+                                            <span class="badge bg-secondary">{{ row.mode }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if row.character != '-' %}
+                                            <span class="badge bg-primary">{{ row.character }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if row.background != '-' %}
+                                            <span class="badge bg-dark">{{ row.background }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">No word timestamps available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Emotion color badges */
+.emotion-angry { background-color: #ff6b6b !important; color: #fff !important; }
+.emotion-bore { background-color: #a9a9a9 !important; color: #000 !important; }
+.emotion-content { background-color: #90ee90 !important; color: #000 !important; }
+.emotion-glare { background-color: #ffa500 !important; color: #000 !important; }
+.emotion-happy { background-color: #ffd93d !important; color: #000 !important; }
+.emotion-sad { background-color: #74c0fc !important; color: #000 !important; }
+.emotion-sarcasm { background-color: #c0c0c0 !important; color: #000 !important; }
+.emotion-worried { background-color: #d0bfff !important; color: #000 !important; }
+
+.table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.table th, .table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+</style>
+{% endblock %}
