@@ -13,6 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from audio_transcription.models import AudioTranscription, WordTimestamp
 from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation, BackgroundAnnotation
+from g2p_en import G2p
 
 def annotate_transcription(request, transcription_id):
     """Display the emotion annotation interface for a transcription"""
@@ -814,6 +815,9 @@ def combined_annotations(request, transcription_id):
     word_timestamps = transcription.word_timestamps.all()
     total_words = word_timestamps.count()
 
+    # Initialize G2p for phoneme conversion
+    g2p = G2p()
+
     # Calculate coverage status for all annotation types
     coverage_status = {}
     emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
@@ -860,6 +864,18 @@ def combined_annotations(request, transcription_id):
         except BackgroundAnnotation.DoesNotExist:
             background = '-'
         
+        # Generate phonemes for the word
+        try:
+            # Clean the word for phoneme conversion (remove punctuation, etc.)
+            clean_word = ''.join(char for char in wt.word if char.isalnum())
+            if clean_word:
+                phonemes = list(g2p(clean_word.lower()))
+            else:
+                phonemes = []
+        except Exception:
+            # If phoneme conversion fails, return empty list
+            phonemes = []
+        
         row = {
             'word': wt.word,
             'start_time': wt.start_time_seconds,
@@ -869,6 +885,7 @@ def combined_annotations(request, transcription_id):
             'mode': mode,
             'character': character,
             'background': background,
+            'phonemes': phonemes,
         }
         combined_data.append(row)
 
