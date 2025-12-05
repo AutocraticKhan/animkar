@@ -624,12 +624,24 @@ def annotate_background(request, transcription_id):
     annotated_words = len(existing_annotations_dict)
     coverage_complete = total_words == annotated_words
 
+    # Get list of available background images for this project
+    available_images = []
+    project_media_dir = os.path.join('projects', str(transcription.project.id), 'media')
+    if os.path.exists(project_media_dir):
+        for filename in os.listdir(project_media_dir):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+                available_images.append({
+                    'filename': filename,
+                    'path': f'projects/{transcription.project.id}/media/{filename}'
+                })
+
     context = {
         'transcription': transcription,
         'word_timestamps': word_timestamps,
         'background_choices': BackgroundAnnotation.BACKGROUND_CHOICES,
         'coverage_complete': coverage_complete,
         'missing_words': total_words - annotated_words,
+        'available_images': available_images,
     }
 
     return render(request, 'annotation/annotate_background.html', context)

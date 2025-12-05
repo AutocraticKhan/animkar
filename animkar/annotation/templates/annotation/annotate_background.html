@@ -110,14 +110,21 @@
 
                     <!-- Custom Image Selection -->
                     <div class="mb-3" id="image-selection-section" style="display: none;">
+                        <label for="image-dropdown" class="form-label">Select Background Image:</label>
                         <div class="d-flex gap-2 align-items-center">
-                            <button type="button" class="btn btn-outline-secondary" id="select-image-btn">
-                                📁 Select Image
+                            <select class="form-select" id="image-dropdown">
+                                <option value="">-- Select an image --</option>
+                                {% for image in available_images %}
+                                <option value="{{ image.path }}">{{ image.filename }}</option>
+                                {% endfor %}
+                                <option value="upload">📁 Upload New Image...</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-secondary" id="apply-custom-image-btn" disabled>
+                                🎨 Apply Custom Image
                             </button>
                             <input type="file" class="d-none" id="image-upload" accept="image/*">
-                            <span id="selected-image-name" class="text-muted">No image selected</span>
                         </div>
-                        <div class="form-text">Supported formats: PNG, JPG, JPEG, BMP, GIF</div>
+                        <div class="form-text">Select an image from the dropdown or upload a new one. Then click "Apply Custom Image" to assign it to selected words.</div>
                     </div>
 
                     <!-- Transcription Text -->
@@ -367,10 +374,11 @@ function setupEventListeners() {
         backgroundColors.custom_color = customColor;
     });
 
-    // Image selection
-    document.getElementById('select-image-btn').addEventListener('click', function() {
-        document.getElementById('image-upload').click();
-    });
+    // Image dropdown
+    document.getElementById('image-dropdown').addEventListener('change', handleImageDropdownChange);
+
+    // Apply custom image button
+    document.getElementById('apply-custom-image-btn').addEventListener('click', applyCustomImage);
 
     // Image upload
     document.getElementById('image-upload').addEventListener('change', handleImageUpload);
@@ -536,24 +544,26 @@ function assignBackgroundToSelected(background) {
     if (background === 'custom_color') {
         document.getElementById('color-picker-section').style.display = 'block';
         document.getElementById('image-selection-section').style.display = 'none';
+        // Apply immediately for color
+        selectedWords.forEach(wordId => {
+            assignBackgroundToWord(wordId, background);
+        });
+        clearSelection();
+        updateCoverageStatus();
     } else if (background === 'custom_image') {
         document.getElementById('color-picker-section').style.display = 'none';
         document.getElementById('image-selection-section').style.display = 'block';
-        if (!customImagePath) {
-            showWarning('Please select an image first.', () => document.getElementById('select-image-btn').click());
-            return;
-        }
+        // Don't apply yet - wait for user to select image and click apply
     } else {
         document.getElementById('color-picker-section').style.display = 'none';
         document.getElementById('image-selection-section').style.display = 'none';
+        // Apply immediately for standard backgrounds
+        selectedWords.forEach(wordId => {
+            assignBackgroundToWord(wordId, background);
+        });
+        clearSelection();
+        updateCoverageStatus();
     }
-
-    selectedWords.forEach(wordId => {
-        assignBackgroundToWord(wordId, background);
-    });
-
-    clearSelection();
-    updateCoverageStatus();
 }
 
 function assignBackgroundToWord(wordId, background) {
@@ -619,13 +629,42 @@ function updateSelectedWordsPanel() {
     }
 }
 
+function handleImageDropdownChange(e) {
+    const selectedValue = e.target.value;
+    const applyBtn = document.getElementById('apply-custom-image-btn');
+
+    if (selectedValue === 'upload') {
+        // Trigger file upload
+        document.getElementById('image-upload').click();
+        // Reset dropdown to empty
+        e.target.value = '';
+        applyBtn.disabled = true;
+    } else if (selectedValue) {
+        // An image is selected
+        customImagePath = selectedValue;
+        applyBtn.disabled = false;
+    } else {
+        // No selection
+        customImagePath = null;
+        applyBtn.disabled = true;
+    }
+}
+
+function applyCustomImage() {
+    if (!customImagePath || selectedWords.size === 0) return;
+
+    // Apply custom image to selected words
+    selectedWords.forEach(wordId => {
+        assignBackgroundToWord(wordId, 'custom_image');
+    });
+
+    clearSelection();
+    updateCoverageStatus();
+}
+
 function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    // Update UI to show selected file
-    document.getElementById('selected-image-name').textContent = `Selected: ${file.name}`;
-    document.getElementById('selected-image-name').className = 'text-success';
 
     const formData = new FormData();
     formData.append('background_image', file);
@@ -641,23 +680,26 @@ function handleImageUpload(e) {
     .then(data => {
         if (data.success) {
             customImagePath = data.image_path;
-            document.getElementById('selected-image-name').textContent = `Uploaded: ${data.filename}`;
 
-            // If custom_image is the active background type and words are selected, apply it
-            if (currentBackgroundType === 'custom_image' && selectedWords.size > 0) {
-                applyBackgroundToSelected();
-            }
+            // Add the new image to the dropdown
+            const dropdown = document.getElementById('image-dropdown');
+            const newOption = document.createElement('option');
+            newOption.value = data.image_path;
+            newOption.textContent = data.filename;
+            // Insert before the upload option
+            const uploadOption = dropdown.querySelector('option[value="upload"]');
+            dropdown.insertBefore(newOption, uploadOption);
+
+            // Select the new image
+            dropdown.value = data.image_path;
+            document.getElementById('apply-custom-image-btn').disabled = false;
 
             showWarning(`Image uploaded successfully: ${data.filename}`, () => {});
         } else {
-            document.getElementById('selected-image-name').textContent = 'Upload failed';
-            document.getElementById('selected-image-name').className = 'text-danger';
             showWarning(data.error || 'Upload failed');
         }
     })
     .catch(error => {
-        document.getElementById('selected-image-name').textContent = 'Upload error';
-        document.getElementById('selected-image-name').className = 'text-danger';
         showWarning('Upload error: ' + error.message);
     });
 }
