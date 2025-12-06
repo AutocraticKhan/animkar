@@ -122,11 +122,770 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Frame Generation Button -->
+                    <div id="frame-button-container" class="mt-3 text-center">
+                        <button id="generate-frames-btn" class="btn btn-primary btn-lg">
+                            🎬 Make Frames Level Table
+                        </button>
+                    </div>
+
+                    <!-- Frame Table Container -->
+                    <div id="frame-table-container" class="mt-4" style="display: none;">
+                        <h3 class="mb-3">📽️ Frame-by-Frame Table (30 FPS)</h3>
+                        <div class="table-responsive">
+                            <table id="frame-table" class="table table-striped table-hover table-bordered table-sm">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Frame</th>
+                                        <th>Time (s)</th>
+                                        <th>Word</th>
+                                        <th>Phoneme</th>
+                                        <th>Emotion</th>
+                                        <th>Body Posture</th>
+                                        <th>Mode</th>
+                                        <th>Character</th>
+                                        <th>Background</th>
+                                        <th>Head Direction</th>
+                                        <th>Eye Direction</th>
+                                        <th>Head Tilt (°)</th>
+                                        <th>Zoom Level</th>
+                                        <th>Blink</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="frame-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Frame generation logic
+const FPS = 30;
+const DEFAULT_PHONEME = 'CLOSED';
+
+// AnimationProcessor class for adding animation columns
+class AnimationProcessor {
+    constructor(frameRate = 30) {
+        this.FRAME_RATE = frameRate;
+
+        // Movement timing constants
+        this.TRANSITION_FRAMES = Math.floor(0.5 * frameRate);
+        this.ANTICIPATION_FRAMES = Math.floor(0.3 * frameRate);
+
+        // Zoom constants
+        this.MAX_CONTENT_ZOOM = 1.15;
+        this.PUNCH_IN_ZOOM = 1.1;
+        this.ZOOM_IN_FRAMES = Math.floor(Math.random() * 16) + 15; // 15-30
+        this.HOLD_FRAMES = Math.floor(1.5 * frameRate);
+        this.ZOOM_OUT_FRAMES = this.ZOOM_IN_FRAMES * 2;
+
+        // Blink constants
+        this.BLINK_DURATION_FRAMES = 5;
+    }
+
+    initializeColumns(frames) {
+        frames.forEach(frame => {
+            frame.head_direction = 'M';
+            frame.eye_direction = 'M';
+            frame.head_tilt = 0;
+            frame.zoom_level = 1.0;
+            frame.blink = false;
+        });
+        return frames;
+    }
+
+    initializeStates() {
+        const states = {};
+
+        // Head position states for different modes
+        states.bc = {  // big_center mode
+            position: 'M',
+            frames_in_position: 0,
+            time_since_last_shift: 0,
+            hold_duration: Math.floor(Math.random() * 3) + 3, // 3-5 seconds
+            shift_interval: Math.floor(Math.random() * 3) + 6, // 6-8 seconds
+            is_transitioning: false,
+            transition_frames_left: 0
+        };
+
+        states.bs = {  // big_side mode
+            position: 'M',
+            frames_in_position: 0,
+            hold_duration: Math.floor(Math.random() * 3) + 2 // 2-4 seconds
+        };
+
+        states.ss = {  // small_side mode
+            position: 'R',
+            frames_in_position: 0,
+            hold_duration: Math.floor(Math.random() * 6) + 10 // 10-15 seconds
+        };
+
+        // Eye movement states
+        states.bc_eye = {
+            is_darting: false,
+            dart_frames_left: 0,
+            dart_direction: 'M',
+            time_since_last_dart: 0,
+            next_dart_time: Math.floor(Math.random() * 2) + 2 // 2-3 seconds
+        };
+
+        states.bs_eye = {
+            is_glancing_back: false,
+            glance_frames_left: 0,
+            time_since_last_glance: 0,
+            next_glance_time: Math.floor(Math.random() * 3) + 3 // 3-5 seconds
+        };
+
+        states.ss_eye = {
+            is_scanning: false,
+            scan_frames_left: 0,
+            scan_direction: 'R',
+            time_since_last_scan: 0,
+            next_scan_time: Math.floor(Math.random() * 2) + 2 // 2-3 seconds
+        };
+
+        // Head tilt state
+        states.tilt = {
+            is_tilting: false,
+            tilt_frames_left: 0,
+            current_tilt_value: 0,
+            time_since_last_tilt: 0,
+            next_tilt_interval: Math.floor(Math.random() * 3) + 8 // 8-10 seconds
+        };
+
+        // Zoom state
+        states.zoom = {
+            is_zooming: false,
+            zoom_frames_left: 0,
+            zoom_phase: null,
+            time_since_last_zoom: 1000
+        };
+
+        // Blink state
+        states.blink = {
+            is_blinking: false,
+            blink_frames_left: 0,
+            time_since_last_blink: 0,
+            next_blink_interval: Math.floor(Math.random() * 5) + 3, // 3-7 seconds
+            is_double_blink_pending: false
+        };
+
+        return states;
+    }
+
+    processHeadDirectionBigCenter(frames, index, state) {
+        if (state.is_transitioning) {
+            state.transition_frames_left -= 1;
+            if (state.transition_frames_left <= 0) {
+                state.is_transitioning = false;
+            }
+        } else {
+            state.frames_in_position += 1;
+            state.time_since_last_shift += 1;
+
+            // From center, shift to L/R after hold duration
+            if (state.position === 'M' &&
+                state.frames_in_position >= state.hold_duration * this.FRAME_RATE &&
+                state.time_since_last_shift >= state.shift_interval * this.FRAME_RATE) {
+
+                state.is_transitioning = true;
+                state.transition_frames_left = this.TRANSITION_FRAMES;
+                state.position = Math.random() < 0.5 ? 'L' : 'R';
+                state.hold_duration = Math.floor(Math.random() * 3) + 2; // 2-4 seconds
+                state.frames_in_position = 0;
+            }
+
+            // From L/R, return to center after hold
+            else if ((state.position === 'L' || state.position === 'R') &&
+                     state.frames_in_position >= state.hold_duration * this.FRAME_RATE) {
+                state.is_transitioning = true;
+                state.transition_frames_left = this.TRANSITION_FRAMES;
+                state.position = 'M';
+                state.hold_duration = Math.floor(Math.random() * 3) + 3; // 3-5 seconds
+                state.frames_in_position = 0;
+                state.time_since_last_shift = 0;
+                state.shift_interval = Math.floor(Math.random() * 3) + 6; // 6-8 seconds
+            }
+        }
+
+        frames[index].head_direction = state.position;
+    }
+
+    processHeadDirectionBigSide(frames, index, state) {
+        state.frames_in_position += 1;
+
+        if (state.frames_in_position >= state.hold_duration * this.FRAME_RATE) {
+            state.frames_in_position = 0;
+            if (state.position === 'M') {
+                state.position = 'R';
+                state.hold_duration = Math.floor(Math.random() * 4) + 2; // 2-5 seconds
+            } else {
+                state.position = 'M';
+                state.hold_duration = Math.floor(Math.random() * 3) + 2; // 2-4 seconds
+            }
+        }
+
+        frames[index].head_direction = state.position;
+    }
+
+    processHeadDirectionSmallSide(frames, index, state) {
+        state.frames_in_position += 1;
+
+        if (state.position === 'R' && state.frames_in_position >= state.hold_duration * this.FRAME_RATE) {
+            state.position = 'M';
+            state.frames_in_position = 0;
+            state.hold_duration = Math.floor(Math.random() * 1) + 1; // 1-1.5 seconds
+        }
+        else if (state.position === 'M' && state.frames_in_position >= state.hold_duration * this.FRAME_RATE) {
+            state.position = 'R';
+            state.frames_in_position = 0;
+            state.hold_duration = Math.floor(Math.random() * 6) + 10; // 10-15 seconds
+        }
+
+        frames[index].head_direction = state.position;
+    }
+
+    processEyeDirectionBigCenter(frames, index, headDir, state) {
+        if (headDir === 'M') {
+            if (state.is_darting) {
+                frames[index].eye_direction = state.dart_direction;
+                state.dart_frames_left -= 1;
+                if (state.dart_frames_left <= 0) {
+                    state.is_darting = false;
+                    state.time_since_last_dart = 0;
+                    state.next_dart_time = Math.floor(Math.random() * 2) + 2;
+                }
+            } else {
+                state.time_since_last_dart += 1;
+                if (state.time_since_last_dart >= state.next_dart_time * this.FRAME_RATE) {
+                    state.is_darting = true;
+                    state.dart_frames_left = Math.floor(0.5 * this.FRAME_RATE);
+                    state.dart_direction = Math.random() < 0.5 ? 'L' : 'R';
+                }
+            }
+        } else {
+            // Reset when head is not center
+            state.is_darting = false;
+            state.time_since_last_dart = 0;
+        }
+    }
+
+    processEyeDirectionBigSide(frames, index, headDir, state) {
+        if (headDir === 'R') {
+            if (state.is_glancing_back) {
+                frames[index].eye_direction = 'M';
+                state.glance_frames_left -= 1;
+                if (state.glance_frames_left <= 0) {
+                    state.is_glancing_back = false;
+                    state.time_since_last_glance = 0;
+                    state.next_glance_time = Math.floor(Math.random() * 3) + 3;
+                }
+            } else {
+                state.time_since_last_glance += 1;
+                if (state.time_since_last_glance >= state.next_glance_time * this.FRAME_RATE) {
+                    state.is_glancing_back = true;
+                    state.glance_frames_left = Math.floor(1 * this.FRAME_RATE);
+                }
+            }
+        } else {
+            state.is_glancing_back = false;
+            state.time_since_last_glance = 0;
+        }
+    }
+
+    processEyeDirectionSmallSide(frames, index, headDir, state) {
+        if (headDir === 'R') {
+            if (state.is_scanning) {
+                frames[index].eye_direction = state.scan_direction;
+                state.scan_frames_left -= 1;
+                if (state.scan_frames_left <= 0) {
+                    state.is_scanning = false;
+                    state.time_since_last_scan = 0;
+                    state.next_scan_time = Math.floor(Math.random() * 2) + 2;
+                }
+            } else {
+                state.time_since_last_scan += 1;
+                if (state.time_since_last_scan >= state.next_scan_time * this.FRAME_RATE) {
+                    state.is_scanning = true;
+                    state.scan_frames_left = Math.floor(0.7 * this.FRAME_RATE);
+                    state.scan_direction = Math.random() < 0.5 ? 'L' : 'M';
+                }
+            }
+        } else {
+            state.is_scanning = false;
+            state.time_since_last_scan = 0;
+        }
+    }
+
+    processHeadTilt(frames, index, state) {
+        if (state.is_tilting) {
+            frames[index].head_tilt = state.current_tilt_value;
+            state.tilt_frames_left -= 1;
+            if (state.tilt_frames_left <= 0) {
+                state.is_tilting = false;
+                state.time_since_last_tilt = 0;
+                state.next_tilt_interval = Math.floor(Math.random() * 3) + 8;
+            }
+        } else {
+            state.time_since_last_tilt += 1;
+        }
+
+        // Check for tilt triggers
+        if (!state.is_tilting && state.time_since_last_tilt >= state.next_tilt_interval * this.FRAME_RATE) {
+            let triggerFound = false;
+
+            // Trigger on head direction change
+            if (index > 0 && frames[index].head_direction !== frames[index - 1].head_direction) {
+                triggerFound = true;
+            }
+
+            // Trigger on word boundary
+            if (!triggerFound && index < frames.length - 1) {
+                if (frames[index].word && frames[index].word !== frames[index + 1].word) {
+                    triggerFound = true;
+                }
+            }
+
+            if (triggerFound) {
+                // Generate tilt angle (avoid 0)
+                const tiltOptions = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5];
+                state.current_tilt_value = tiltOptions[Math.floor(Math.random() * tiltOptions.length)];
+                state.is_tilting = true;
+                state.tilt_frames_left = Math.floor(Math.random() * 3) + 1; // 1-3 seconds
+                frames[index].head_tilt = state.current_tilt_value;
+            }
+        }
+    }
+
+    processZoomNoAvatar(frames) {
+        // Find no_avatar blocks
+        const blocks = [];
+        let inBlock = false;
+        let blockStart = 0;
+
+        for (let i = 0; i < frames.length; i++) {
+            if (frames[i].mode === 'no_avatar' && !inBlock) {
+                inBlock = true;
+                blockStart = i;
+            } else if (frames[i].mode !== 'no_avatar' && inBlock) {
+                inBlock = false;
+                blocks.push([blockStart, i - 1]);
+            }
+        }
+
+        if (inBlock) {
+            blocks.push([blockStart, frames.length - 1]);
+        }
+
+        // Apply smooth zoom to each block
+        blocks.forEach(([start, end]) => {
+            const blockLength = end - start + 1;
+            if (blockLength < 2) return;
+
+            const midpoint = Math.floor(blockLength / 2);
+
+            // Zoom in
+            for (let i = 0; i < midpoint; i++) {
+                const progress = i / (midpoint - 1);
+                frames[start + i].zoom_level = 1.0 + (this.MAX_CONTENT_ZOOM - 1.0) * progress;
+            }
+
+            // Zoom out
+            for (let i = 0; i < blockLength - midpoint; i++) {
+                const progress = i / (blockLength - midpoint - 1);
+                frames[start + midpoint + i].zoom_level = this.MAX_CONTENT_ZOOM - (this.MAX_CONTENT_ZOOM - 1.0) * progress;
+            }
+        });
+    }
+
+    processZoomBigCenter(frames, index, state) {
+        if (state.is_zooming) {
+            const currentZoom = index > 0 ? frames[index - 1].zoom_level : 1.0;
+
+            if (state.zoom_phase === 'in') {
+                const increment = (this.PUNCH_IN_ZOOM - 1.0) / this.ZOOM_IN_FRAMES;
+                frames[index].zoom_level = Math.min(this.PUNCH_IN_ZOOM, currentZoom + increment);
+                state.zoom_frames_left -= 1;
+                if (state.zoom_frames_left <= 0) {
+                    state.zoom_phase = 'hold';
+                    state.zoom_frames_left = this.HOLD_FRAMES;
+                }
+            } else if (state.zoom_phase === 'hold') {
+                frames[index].zoom_level = this.PUNCH_IN_ZOOM;
+                state.zoom_frames_left -= 1;
+                if (state.zoom_frames_left <= 0) {
+                    state.zoom_phase = 'out';
+                    state.zoom_frames_left = this.ZOOM_OUT_FRAMES;
+                }
+            } else if (state.zoom_phase === 'out') {
+                const decrement = (this.PUNCH_IN_ZOOM - 1.0) / this.ZOOM_OUT_FRAMES;
+                frames[index].zoom_level = Math.max(1.0, currentZoom - decrement);
+                state.zoom_frames_left -= 1;
+                if (state.zoom_frames_left <= 0) {
+                    state.is_zooming = false;
+                    state.time_since_last_zoom = 0;
+                }
+            }
+        } else {
+            state.time_since_last_zoom += 1;
+        }
+
+        // Trigger zoom on word start (after cooldown)
+        const cooldown = this.ZOOM_IN_FRAMES + this.HOLD_FRAMES + this.ZOOM_OUT_FRAMES + this.FRAME_RATE * 3;
+        const canTrigger = state.time_since_last_zoom > cooldown;
+
+        if (!state.is_zooming && canTrigger && index > 0) {
+            // Check if this is the start of a new word
+            if (frames[index].word && !frames[index - 1].word) {
+                state.is_zooming = true;
+                state.zoom_phase = 'in';
+                state.zoom_frames_left = this.ZOOM_IN_FRAMES;
+            }
+        }
+    }
+
+    processBlink(frames, index, state) {
+        if (state.is_blinking) {
+            frames[index].blink = true;
+            state.blink_frames_left -= 1;
+            if (state.blink_frames_left <= 0) {
+                state.is_blinking = false;
+                state.time_since_last_blink = 0;
+
+                // Double blink handling
+                if (state.is_double_blink_pending) {
+                    state.next_blink_interval = Math.floor(Math.random() * 9) + 7; // 7-15 frames (not seconds for double blink)
+                    state.is_double_blink_pending = false;
+                } else {
+                    state.next_blink_interval = Math.floor(Math.random() * 5) + 3; // 3-7 seconds
+                }
+            }
+            return;
+        }
+
+        state.time_since_last_blink += 1;
+        let triggerFound = false;
+
+        // Trigger on head direction change (50% chance)
+        if (index > 0 && frames[index].head_direction !== frames[index - 1].head_direction) {
+            if (Math.random() < 0.5) {
+                triggerFound = true;
+            }
+        }
+
+        // Trigger on word start
+        if (!triggerFound && index > 0) {
+            if (frames[index].word && !frames[index - 1].word) {
+                triggerFound = true;
+            }
+        }
+
+        // Trigger on time interval
+        if (!triggerFound && state.time_since_last_blink >= state.next_blink_interval * this.FRAME_RATE) {
+            triggerFound = true;
+        }
+
+        if (triggerFound) {
+            state.is_blinking = true;
+            state.blink_frames_left = this.BLINK_DURATION_FRAMES;
+            frames[index].blink = true;
+            state.blink_frames_left -= 1;
+
+            // 15% chance of double blink
+            if (Math.random() < 0.15) {
+                state.is_double_blink_pending = true;
+            }
+        }
+    }
+
+    applyEyeAnticipation(frames) {
+        // Find turn indices for big_side mode
+        const turnIndices = [];
+        for (let i = 0; i < frames.length; i++) {
+            if (frames[i].mode === 'big_side' &&
+                frames[i].head_direction === 'R' &&
+                i > 0 && frames[i - 1].head_direction === 'M') {
+                turnIndices.push(i);
+            }
+        }
+
+        // Apply anticipation
+        turnIndices.forEach(index => {
+            const startIndex = Math.max(0, index - this.ANTICIPATION_FRAMES);
+            for (let i = startIndex; i < index; i++) {
+                frames[i].eye_direction = 'R';
+            }
+        });
+    }
+
+    process(frames) {
+        // Initialize columns
+        frames = this.initializeColumns(frames);
+
+        // Initialize state machines
+        const states = this.initializeStates();
+
+        // Pre-process zoom for no_avatar blocks
+        this.processZoomNoAvatar(frames);
+
+        // Main frame-by-frame loop
+        for (let index = 0; index < frames.length; index++) {
+            const mode = frames[index].mode;
+
+            // === HEAD DIRECTION ===
+            if (mode === 'big_center') {
+                this.processHeadDirectionBigCenter(frames, index, states.bc);
+            } else if (mode === 'big_side') {
+                this.processHeadDirectionBigSide(frames, index, states.bs);
+            } else if (mode === 'small_side') {
+                this.processHeadDirectionSmallSide(frames, index, states.ss);
+            }
+
+            const headDir = frames[index].head_direction;
+
+            // === EYE DIRECTION (default: follow head) ===
+            frames[index].eye_direction = headDir;
+
+            if (mode === 'big_center') {
+                this.processEyeDirectionBigCenter(frames, index, headDir, states.bc_eye);
+            } else if (mode === 'big_side') {
+                this.processEyeDirectionBigSide(frames, index, headDir, states.bs_eye);
+            } else if (mode === 'small_side') {
+                this.processEyeDirectionSmallSide(frames, index, headDir, states.ss_eye);
+            }
+
+            // === HEAD TILT ===
+            this.processHeadTilt(frames, index, states.tilt);
+
+            // === ZOOM ===
+            if (mode !== 'big_center') {
+                states.zoom.time_since_last_zoom += 1;
+            } else {
+                this.processZoomBigCenter(frames, index, states.zoom);
+            }
+
+            // === BLINK ===
+            this.processBlink(frames, index, states.blink);
+        }
+
+        // Post-processing: Eye anticipation
+        this.applyEyeAnticipation(frames);
+
+        return frames;
+    }
+}
+
+function parseTableData() {
+    const table = document.querySelector('.table tbody');
+    const rows = table.querySelectorAll('tr');
+    const data = [];
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].querySelectorAll('td');
+        if (cells.length >= 10) { // Skip empty rows
+            const phonemesText = cells[9].textContent.trim();
+            const phonemes = phonemesText ? phonemesText.split(', ').map(p => p.trim()) : [];
+
+            data.push({
+                word: cells[1].textContent.trim(),
+                start_time: parseFloat(cells[2].textContent.trim()),
+                end_time: parseFloat(cells[3].textContent.trim()),
+                emotion: cells[4].querySelector('.badge')?.textContent.trim() || 'neutral',
+                body_posture: cells[5].querySelector('.badge')?.textContent.trim() || 'neutral',
+                mode: cells[6].querySelector('.badge')?.textContent.trim() || 'big_side',
+                character: cells[7].querySelector('.badge')?.textContent.trim() || 'character1',
+                background: cells[8].querySelector('.badge')?.textContent.trim() || 'white',
+                phonemes: phonemes
+            });
+        }
+    }
+    return data;
+}
+
+function createFrameTable(data) {
+    if (data.length === 0) return [];
+
+    // Calculate total frames
+    const maxEndTime = Math.max(...data.map(row => row.end_time));
+    const totalFrames = Math.ceil(maxEndTime * FPS);
+
+    // Pre-calculate frame assignments for each word
+    const wordFrameAssignments = {};
+    data.forEach((row, idx) => {
+        const startFrame = Math.ceil(row.start_time * FPS);
+        const endFrame = Math.ceil(row.end_time * FPS);
+        const totalWordFrames = endFrame - startFrame;
+
+        const phonemes = row.phonemes;
+        const numPhonemes = phonemes.length;
+
+        if (numPhonemes === 0) {
+            wordFrameAssignments[idx] = {
+                start_frame: startFrame,
+                end_frame: endFrame,
+                frame_to_phoneme: {},
+                row: row
+            };
+            return;
+        }
+
+        // Calculate base frames per phoneme and remainder
+        const baseFramesPerPhoneme = Math.floor(totalWordFrames / numPhonemes);
+        const remainder = totalWordFrames % numPhonemes;
+
+        // Assign frames to each phoneme
+        const phonemeFrames = [];
+        for (let i = 0; i < numPhonemes; i++) {
+            if (i < numPhonemes - 1) {
+                phonemeFrames.push(baseFramesPerPhoneme);
+            } else {
+                phonemeFrames.push(baseFramesPerPhoneme + remainder);
+            }
+        }
+
+        // Create mapping of frame number to phoneme
+        const frameToPhoneme = {};
+        let currentFrame = startFrame;
+        phonemeFrames.forEach((numFrames, phonemeIdx) => {
+            for (let f = 0; f < numFrames; f++) {
+                if (currentFrame <= endFrame) {
+                    frameToPhoneme[currentFrame] = phonemes[phonemeIdx];
+                    currentFrame++;
+                }
+            }
+        });
+
+        wordFrameAssignments[idx] = {
+            start_frame: startFrame,
+            end_frame: endFrame,
+            frame_to_phoneme: frameToPhoneme,
+            row: row
+        };
+    });
+
+    // Initialize frames array
+    const frames = [];
+
+    // Process each frame
+    for (let frameNum = 1; frameNum <= totalFrames; frameNum++) {
+        let wordFound = false;
+        let currentPhoneme = DEFAULT_PHONEME;
+        let row = null;
+
+        // Find which word this frame belongs to
+        for (const [idx, wordData] of Object.entries(wordFrameAssignments)) {
+            if (wordData.start_frame <= frameNum && frameNum <= wordData.end_frame) {
+                wordFound = true;
+                row = wordData.row;
+                currentPhoneme = wordData.frame_to_phoneme[frameNum] || row.phonemes[row.phonemes.length - 1] || DEFAULT_PHONEME;
+                break;
+            }
+        }
+
+        const frameTime = (frameNum - 0.5) / FPS;
+
+        if (wordFound && row) {
+            frames.push({
+                frame: frameNum,
+                time: frameTime.toFixed(3),
+                word: row.word,
+                phoneme: currentPhoneme,
+                emotion: row.emotion,
+                body_posture: row.body_posture,
+                mode: row.mode,
+                character: row.character,
+                background: row.background
+            });
+        } else {
+            // Use default or last known values
+            let lastFrame = frames[frames.length - 1];
+            if (!lastFrame) {
+                // First frame before any word
+                frames.push({
+                    frame: frameNum,
+                    time: frameTime.toFixed(3),
+                    word: '',
+                    phoneme: DEFAULT_PHONEME,
+                    emotion: 'neutral',
+                    body_posture: 'neutral',
+                    mode: 'big_side',
+                    character: 'character1',
+                    background: 'white'
+                });
+            } else {
+                frames.push({
+                    frame: frameNum,
+                    time: frameTime.toFixed(3),
+                    word: '',
+                    phoneme: DEFAULT_PHONEME,
+                    emotion: lastFrame.emotion,
+                    body_posture: lastFrame.body_posture,
+                    mode: lastFrame.mode,
+                    character: lastFrame.character,
+                    background: lastFrame.background
+                });
+            }
+        }
+    }
+
+    // Apply animation processing
+    const processor = new AnimationProcessor(FPS);
+    const framesWithAnimation = processor.process(frames);
+
+    return framesWithAnimation;
+}
+
+function generateFrameTable() {
+    const data = parseTableData();
+    const frames = createFrameTable(data);
+
+    const tbody = document.getElementById('frame-table-body');
+    tbody.innerHTML = '';
+
+    frames.forEach(frame => {
+        const row = document.createElement('tr');
+        const headDirBadge = frame.head_direction === 'L' ? 'bg-warning' :
+                           frame.head_direction === 'R' ? 'bg-danger' : 'bg-light text-dark';
+        const eyeDirBadge = frame.eye_direction === 'L' ? 'bg-warning' :
+                          frame.eye_direction === 'R' ? 'bg-danger' : 'bg-light text-dark';
+        const tiltClass = frame.head_tilt > 0 ? 'text-success' :
+                         frame.head_tilt < 0 ? 'text-danger' : 'text-muted';
+        const zoomClass = frame.zoom_level > 1.0 ? 'text-primary' : 'text-muted';
+        const blinkBadge = frame.blink ? 'bg-danger text-white' : 'bg-light text-muted';
+
+        row.innerHTML = `
+            <td>${frame.frame}</td>
+            <td>${frame.time}</td>
+            <td><strong>${frame.word}</strong></td>
+            <td><code>${frame.phoneme}</code></td>
+            <td><span class="badge emotion-${frame.emotion.toLowerCase()}">${frame.emotion}</span></td>
+            <td><span class="badge bg-info">${frame.body_posture}</span></td>
+            <td><span class="badge bg-secondary">${frame.mode}</span></td>
+            <td><span class="badge bg-primary">${frame.character}</span></td>
+            <td><span class="badge bg-dark">${frame.background}</span></td>
+            <td><span class="badge ${headDirBadge}">${frame.head_direction}</span></td>
+            <td><span class="badge ${eyeDirBadge}">${frame.eye_direction}</span></td>
+            <td><span class="${tiltClass}"><strong>${frame.head_tilt}°</strong></span></td>
+            <td><span class="${zoomClass}"><strong>${frame.zoom_level.toFixed(2)}x</strong></span></td>
+            <td><span class="badge ${blinkBadge}">${frame.blink ? 'BLINK' : '-'}</span></td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    // Show the frame table and hide the button
+    document.getElementById('frame-table-container').style.display = 'block';
+    document.getElementById('frame-button-container').style.display = 'none';
+}
+
+// Event listener
+document.getElementById('generate-frames-btn').addEventListener('click', generateFrameTable);
+</script>
 
 <style>
 /* Emotion color badges */
