@@ -4,6 +4,7 @@
 
 {% block content %}
 <div class="container mt-4">
+    {% csrf_token %}
     <div class="row mb-4">
         <div class="col-12">
             <nav aria-label="breadcrumb">
@@ -131,8 +132,21 @@
                     </div>
 
                     <!-- Frame Table Container -->
-                    <div id="frame-table-container" class="mt-4" style="display: none;">
-                        <h3 class="mb-3">📽️ Frame-by-Frame Table (30 FPS)</h3>
+                    <div id="frame-table-container" class="mt-4" style="{% if frames_saved %}block{% else %}none{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0">📽️ Frame-by-Frame Table (30 FPS)</h3>
+                            <div class="btn-group" role="group">
+                                {% if frames_saved %}
+                                    <button id="update-frames-btn" class="btn btn-warning btn-sm">
+                                        🔄 Update Frames
+                                    </button>
+                                {% else %}
+                                    <button id="save-frames-btn" class="btn btn-success btn-sm">
+                                        💾 Save Frames to DB
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table id="frame-table" class="table table-striped table-hover table-bordered table-sm">
                                 <thead class="table-dark">
@@ -146,6 +160,7 @@
                                         <th>Mode</th>
                                         <th>Character</th>
                                         <th>Background</th>
+                                        <th>Media</th>
                                         <th>Head Direction</th>
                                         <th>Eye Direction</th>
                                         <th>Head Tilt (°)</th>
@@ -154,6 +169,27 @@
                                     </tr>
                                 </thead>
                                 <tbody id="frame-table-body">
+                                    {% if frames_saved %}
+                                        {% for frame in existing_frames %}
+                                        <tr>
+                                            <td>{{ frame.frame_number }}</td>
+                                            <td>{{ frame.time_seconds|floatformat:3 }}</td>
+                                            <td><strong>{{ frame.word }}</strong></td>
+                                            <td><code>{{ frame.phoneme }}</code></td>
+                                            <td><span class="badge emotion-{{ frame.emotion|lower }}">{{ frame.emotion }}</span></td>
+                                            <td><span class="badge bg-info">{{ frame.body_posture }}</span></td>
+                                            <td><span class="badge bg-secondary">{{ frame.mode }}</span></td>
+                                            <td><span class="badge bg-primary">{{ frame.character }}</span></td>
+                                            <td><span class="badge bg-dark">{{ frame.background }}</span></td>
+                                            <td><span class="text-muted">{{ frame.media|default:"-" }}</span></td>
+                                            <td><span class="badge {% if frame.head_direction == 'L' %}bg-warning{% elif frame.head_direction == 'R' %}bg-danger{% else %}bg-light text-dark{% endif %}">{{ frame.head_direction }}</span></td>
+                                            <td><span class="badge {% if frame.eye_direction == 'L' %}bg-warning{% elif frame.eye_direction == 'R' %}bg-danger{% else %}bg-light text-dark{% endif %}">{{ frame.eye_direction }}</span></td>
+                                            <td><span class="{% if frame.head_tilt > 0 %}text-success{% elif frame.head_tilt < 0 %}text-danger{% else %}text-muted{% endif %}"><strong>{{ frame.head_tilt }}°</strong></span></td>
+                                            <td><span class="{% if frame.zoom_level > 1.0 %}text-primary{% else %}text-muted{% endif %}"><strong>{{ frame.zoom_level|floatformat:2 }}x</strong></span></td>
+                                            <td><span class="badge {% if frame.blink %}bg-danger text-white{% else %}bg-light text-muted{% endif %}">{{ frame.blink|yesno:"BLINK,-" }}</span></td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endif %}
                                 </tbody>
                             </table>
                         </div>
@@ -165,6 +201,8 @@
 </div>
 
 <script>
+const TRANSCRIPTION_ID = {{ transcription.pk|safe }};
+
 // Frame generation logic
 const FPS = 30;
 const DEFAULT_PHONEME = 'CLOSED';
@@ -869,6 +907,7 @@ function generateFrameTable() {
             <td><span class="badge bg-secondary">${frame.mode}</span></td>
             <td><span class="badge bg-primary">${frame.character}</span></td>
             <td><span class="badge bg-dark">${frame.background}</span></td>
+            <td><span class="text-muted">-</span></td>
             <td><span class="badge ${headDirBadge}">${frame.head_direction}</span></td>
             <td><span class="badge ${eyeDirBadge}">${frame.eye_direction}</span></td>
             <td><span class="${tiltClass}"><strong>${frame.head_tilt}°</strong></span></td>
@@ -883,8 +922,66 @@ function generateFrameTable() {
     document.getElementById('frame-button-container').style.display = 'none';
 }
 
-// Event listener
+// Event listeners
 document.getElementById('generate-frames-btn').addEventListener('click', generateFrameTable);
+
+// Handle both save and update frame buttons
+function handleFrameSave(endpoint, successMessage) {
+    console.log('handleFrameSave called with:', endpoint, successMessage);
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (!csrftoken) {
+        alert('CSRF token not found!');
+        return;
+    }
+
+    const url = `/annotation/transcription/${TRANSCRIPTION_ID}/${endpoint}`;
+    console.log('Making request to:', url);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken.value
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            alert(successMessage + '\n\n' + data.message);
+            location.reload(); // Reload to show saved frames
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Error: ' + error.message);
+    });
+}
+
+// Save frames to database (initial save)
+const saveBtn = document.getElementById('save-frames-btn');
+if (saveBtn) {
+    console.log('Adding event listener to save button');
+    saveBtn.addEventListener('click', function() {
+        console.log('Save button clicked');
+        handleFrameSave('frames/save/', 'Frames saved successfully!');
+    });
+}
+
+// Update frames from annotations
+const updateBtn = document.getElementById('update-frames-btn');
+if (updateBtn) {
+    console.log('Adding event listener to update button');
+    updateBtn.addEventListener('click', function() {
+        console.log('Update button clicked');
+        handleFrameSave('frames/update/', 'Frames updated successfully!');
+    });
+}
 </script>
 
 <style>

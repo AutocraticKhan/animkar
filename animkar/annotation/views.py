@@ -12,7 +12,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from audio_transcription.models import AudioTranscription, WordTimestamp
-from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation, BackgroundAnnotation
+from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation, BackgroundAnnotation, FrameAnnotation
 from g2p_en import G2p
 
 def annotate_transcription(request, transcription_id):
@@ -835,6 +835,10 @@ def combined_annotations(request, transcription_id):
     background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
     coverage_status['background_complete'] = background_count == total_words
 
+    # Check if frames are already saved in database
+    existing_frames = FrameAnnotation.objects.filter(transcription=transcription)
+    frames_saved = existing_frames.exists()
+
     # Build combined data for each word
     combined_data = []
     for wt in word_timestamps:
@@ -843,27 +847,27 @@ def combined_annotations(request, transcription_id):
             emotion = wt.emotion_annotation.emotion
         except EmotionAnnotation.DoesNotExist:
             emotion = '-'
-        
+
         try:
             body_posture = wt.body_posture_annotation.posture
         except BodyPostureAnnotation.DoesNotExist:
             body_posture = '-'
-        
+
         try:
             mode = wt.mode_annotation.mode
         except ModeAnnotation.DoesNotExist:
             mode = '-'
-        
+
         try:
             character = wt.character_annotation.character
         except CharacterAnnotation.DoesNotExist:
             character = '-'
-        
+
         try:
             background = wt.background_annotation.background_type
         except BackgroundAnnotation.DoesNotExist:
             background = '-'
-        
+
         # Generate phonemes for the word
         try:
             # Clean the word for phoneme conversion (remove punctuation, etc.)
@@ -875,7 +879,7 @@ def combined_annotations(request, transcription_id):
         except Exception:
             # If phoneme conversion fails, return empty list
             phonemes = []
-        
+
         row = {
             'word': wt.word,
             'start_time': wt.start_time_seconds,
@@ -893,6 +897,8 @@ def combined_annotations(request, transcription_id):
         'transcription': transcription,
         'combined_data': combined_data,
         'coverage_status': coverage_status,
+        'frames_saved': frames_saved,
+        'existing_frames': existing_frames if frames_saved else None,
     }
 
     return render(request, 'annotation/combined_annotations.html', context)
@@ -943,3 +949,241 @@ def upload_background_image(request, transcription_id):
 
     except Exception as e:
         return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
+
+@require_POST
+def save_frames_to_db(request, transcription_id):
+    """Save the current frame table to database"""
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    try:
+        # Delete existing frames for this transcription
+        FrameAnnotation.objects.filter(transcription=transcription).delete()
+
+        # Generate frames using the same logic as the frontend
+        word_timestamps = transcription.word_timestamps.all()
+        g2p_obj = G2p()
+
+        # Build word data
+        word_data = []
+        for wt in word_timestamps:
+            try:
+                emotion = wt.emotion_annotation.emotion
+            except EmotionAnnotation.DoesNotExist:
+                emotion = 'neutral'
+
+            try:
+                body_posture = wt.body_posture_annotation.posture
+            except BodyPostureAnnotation.DoesNotExist:
+                body_posture = 'neutral'
+
+            try:
+                mode = wt.mode_annotation.mode
+            except ModeAnnotation.DoesNotExist:
+                mode = 'big_side'
+
+            try:
+                character = wt.character_annotation.character
+            except CharacterAnnotation.DoesNotExist:
+                character = 'character1'
+
+            try:
+                background = wt.background_annotation.background_type
+            except BackgroundAnnotation.DoesNotExist:
+                background = 'white'
+
+            try:
+                clean_word = ''.join(char for char in wt.word if char.isalnum())
+                phonemes = list(g2p_obj(clean_word.lower())) if clean_word else []
+            except:
+                phonemes = []
+
+            word_data.append({
+                'word': wt.word,
+                'start_time': wt.start_time_seconds,
+                'end_time': wt.end_time_seconds,
+                'emotion': emotion,
+                'body_posture': body_posture,
+                'mode': mode,
+                'character': character,
+                'background': background,
+                'phonemes': phonemes
+            })
+
+        # Generate frames using the same algorithm as frontend
+        frames = generate_frames_from_words(word_data)
+
+        # Save frames to database
+        frame_objects = []
+        for frame in frames:
+            frame_obj = FrameAnnotation(
+                transcription=transcription,
+                frame_number=frame['frame'],
+                time_seconds=frame['time'],
+                word=frame['word'],
+                phoneme=frame['phoneme'],
+                emotion=frame['emotion'],
+                body_posture=frame['body_posture'],
+                mode=frame['mode'],
+                character=frame['character'],
+                background=frame['background'],
+                head_direction=frame.get('head_direction', 'M'),
+                eye_direction=frame.get('eye_direction', 'M'),
+                head_tilt=frame.get('head_tilt', 0),
+                zoom_level=frame.get('zoom_level', 1.0),
+                blink=frame.get('blink', False),
+                media=''  # Initially empty
+            )
+            frame_objects.append(frame_obj)
+
+        # Bulk create for efficiency
+        FrameAnnotation.objects.bulk_create(frame_objects)
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Successfully saved {len(frame_objects)} frames to database. Previous frames (if any) have been overwritten.'
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': f'Failed to save frames: {str(e)}'}, status=500)
+
+@require_POST
+def update_frames_from_annotations(request, transcription_id):
+    """Regenerate frames when annotations change"""
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    try:
+        # Delete existing frames
+        FrameAnnotation.objects.filter(transcription=transcription).delete()
+
+        # Redirect to save frames (reuse the same logic)
+        return save_frames_to_db(request, transcription_id)
+
+    except Exception as e:
+        return JsonResponse({'error': f'Failed to update frames: {str(e)}'}, status=500)
+
+def generate_frames_from_words(word_data):
+    """Generate frame data from word data (same logic as frontend)"""
+    if not word_data:
+        return []
+
+    FPS = 30
+    DEFAULT_PHONEME = 'CLOSED'
+
+    # Calculate total frames
+    max_end_time = max(row['end_time'] for row in word_data)
+    total_frames = int(max_end_time * FPS) + 1
+
+    # Pre-calculate frame assignments for each word
+    word_frame_assignments = {}
+    for idx, row in enumerate(word_data):
+        start_frame = int(row['start_time'] * FPS) + 1
+        end_frame = int(row['end_time'] * FPS) + 1
+        total_word_frames = end_frame - start_frame
+
+        phonemes = row['phonemes']
+        num_phonemes = len(phonemes)
+
+        if num_phonemes == 0:
+            word_frame_assignments[idx] = {
+                'start_frame': start_frame,
+                'end_frame': end_frame,
+                'frame_to_phoneme': {},
+                'row': row
+            }
+            continue
+
+        # Distribute frames among phonemes
+        base_frames = total_word_frames // num_phonemes
+        remainder = total_word_frames % num_phonemes
+
+        phoneme_frames = [base_frames] * num_phonemes
+        for i in range(remainder):
+            phoneme_frames[i] += 1
+
+        frame_to_phoneme = {}
+        current_frame = start_frame
+        for phoneme_idx, num_frames in enumerate(phoneme_frames):
+            for _ in range(num_frames):
+                if current_frame <= end_frame:
+                    frame_to_phoneme[current_frame] = phonemes[phoneme_idx]
+                    current_frame += 1
+
+        word_frame_assignments[idx] = {
+            'start_frame': start_frame,
+            'end_frame': end_frame,
+            'frame_to_phoneme': frame_to_phoneme,
+            'row': row
+        }
+
+    # Generate frames
+    frames = []
+    for frame_num in range(1, total_frames + 1):
+        word_found = False
+        current_phoneme = DEFAULT_PHONEME
+        row = None
+
+        for idx, word_data_item in word_frame_assignments.items():
+            if word_data_item['start_frame'] <= frame_num <= word_data_item['end_frame']:
+                word_found = True
+                row = word_data_item['row']
+                current_phoneme = word_data_item['frame_to_phoneme'].get(frame_num,
+                    row['phonemes'][-1] if row['phonemes'] else DEFAULT_PHONEME)
+                break
+
+        frame_time = (frame_num - 0.5) / FPS
+
+        if word_found and row:
+            frames.append({
+                'frame': frame_num,
+                'time': round(frame_time, 3),
+                'word': row['word'],
+                'phoneme': current_phoneme,
+                'emotion': row['emotion'],
+                'body_posture': row['body_posture'],
+                'mode': row['mode'],
+                'character': row['character'],
+                'background': row['background'],
+                'head_direction': 'M',
+                'eye_direction': 'M',
+                'head_tilt': 0,
+                'zoom_level': 1.0,
+                'blink': False
+            })
+        else:
+            last_frame = frames[-1] if frames else None
+            if last_frame:
+                frames.append({
+                    'frame': frame_num,
+                    'time': round(frame_time, 3),
+                    'word': '',
+                    'phoneme': DEFAULT_PHONEME,
+                    'emotion': last_frame['emotion'],
+                    'body_posture': last_frame['body_posture'],
+                    'mode': last_frame['mode'],
+                    'character': last_frame['character'],
+                    'background': last_frame['background'],
+                    'head_direction': 'M',
+                    'eye_direction': 'M',
+                    'head_tilt': 0,
+                    'zoom_level': 1.0,
+                    'blink': False
+                })
+            else:
+                frames.append({
+                    'frame': frame_num,
+                    'time': round(frame_time, 3),
+                    'word': '',
+                    'phoneme': DEFAULT_PHONEME,
+                    'emotion': 'neutral',
+                    'body_posture': 'neutral',
+                    'mode': 'big_side',
+                    'character': 'character1',
+                    'background': 'white',
+                    'head_direction': 'M',
+                    'eye_direction': 'M',
+                    'head_tilt': 0,
+                    'zoom_level': 1.0,
+                    'blink': False
+                })
+
+    return frames
