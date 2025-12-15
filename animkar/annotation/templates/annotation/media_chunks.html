@@ -1,0 +1,265 @@
+{% extends "project_manager/base.html" %}
+
+{% block title %}Media Chunks - {{ transcription.original_filename }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% csrf_token %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
+                    <li class="breadcrumb-item active">Media Chunks</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        {% include "annotation/annotation_navigation.html" with active_page="media" %}
+
+        <!-- Main Content: Media Chunks -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        🎬 Media Chunks: {{ transcription.original_filename }}
+                        <small class="text-muted">({{ chunks_data|length }} mode chunks)</small>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Coverage Summary -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge {% if coverage_status.emotion_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Emotion: {% if coverage_status.emotion_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.body_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Body: {% if coverage_status.body_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.mode_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Mode: {% if coverage_status.mode_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.characters_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Characters: {% if coverage_status.characters_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                                <span class="badge {% if coverage_status.background_complete %}bg-success{% else %}bg-warning{% endif %}">
+                                    Background: {% if coverage_status.background_complete %}✓{% else %}⋯{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chunks Container -->
+                    <div id="chunks-container">
+                        {% for chunk in chunks_data %}
+                        <div class="chunk-card card mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5 class="card-title">
+                                            🎭 {{ chunk.Mode }}
+                                            <small class="text-muted">({{ chunk.Duration|floatformat:1 }}s)</small>
+                                        </h5>
+                                        <p class="card-text">
+                                            <strong>Words:</strong> {{ chunk.Words|truncatechars:100 }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="media-section">
+                                            {% if chunk.media_files %}
+                                                <div class="media-status alert alert-success">
+                                                    <strong>✅ Media Assigned:</strong><br>
+                                                    {% for media_file in chunk.media_files %}
+                                                        <small>{{ media_file }}</small><br>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="media-status alert alert-warning">
+                                                    <strong>❌ No Media</strong>
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="media-controls mt-2">
+                                                <form class="upload-form" data-chunk-idx="{{ forloop.counter0 }}">
+                                                    <div class="mb-2">
+                                                        <input type="file" class="form-control form-control-sm media-file-input"
+                                                               name="media_files" multiple accept=".jpg,.jpeg,.png,.bmp,.mp4,.avi,.mov,.wmv,.flv,.webm,.mkv,.gif">
+                                                    </div>
+                                                    <button type="button" class="btn btn-primary btn-sm upload-btn">
+                                                        📁 Upload Media
+                                                    </button>
+                                                    {% if chunk.media %}
+                                                        <button type="button" class="btn btn-success btn-sm deselect-btn ms-2">
+                                                            🗑️ Deselect Media
+                                                        </button>
+                                                    {% endif %}
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="alert alert-info">
+                            No mode chunks found. Please ensure mode annotations are complete.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const TRANSCRIPTION_ID = {{ transcription.pk|safe }};
+const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+// Upload media for a chunk
+function uploadMedia(chunkIdx, formData) {
+    formData.append('chunk_idx', chunkIdx);
+
+    fetch(`/annotation/transcription/${TRANSCRIPTION_ID}/media/upload/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': CSRF_TOKEN
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload(); // Refresh to show updated media assignments
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        alert('Upload failed: ' + error.message);
+    });
+}
+
+// Deselect media for a chunk
+function deselectMedia(chunkIdx) {
+    const formData = new FormData();
+    formData.append('chunk_idx', chunkIdx);
+
+    fetch(`/annotation/transcription/${TRANSCRIPTION_ID}/media/deselect/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': CSRF_TOKEN
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload(); // Refresh to show updated media assignments
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Deselect error:', error);
+        alert('Deselect failed: ' + error.message);
+    });
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Upload buttons
+    document.querySelectorAll('.upload-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('.upload-form');
+            const chunkIdx = form.getAttribute('data-chunk-idx');
+            const fileInput = form.querySelector('.media-file-input');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select at least one file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('media_files', fileInput.files[i]);
+            }
+
+            uploadMedia(chunkIdx, formData);
+        });
+    });
+
+    // Deselect buttons
+    document.querySelectorAll('.deselect-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('.upload-form');
+            const chunkIdx = form.getAttribute('data-chunk-idx');
+
+            if (confirm('Are you sure you want to deselect all media for this chunk? This will delete the associated files.')) {
+                deselectMedia(chunkIdx);
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.chunk-card {
+    border-left: 4px solid #6366f1;
+    transition: all 0.2s ease-in-out;
+}
+
+.chunk-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.media-section {
+    text-align: right;
+}
+
+.media-status {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.media-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.upload-form {
+    width: 100%;
+}
+
+.media-file-input {
+    font-size: 0.75rem;
+}
+
+.upload-btn, .deselect-btn {
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .media-section {
+        text-align: left;
+        margin-top: 1rem;
+    }
+
+    .media-controls {
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %}

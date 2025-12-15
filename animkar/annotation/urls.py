@@ -19,6 +19,9 @@ urlpatterns = [
     path('transcription/<int:transcription_id>/background/save/', views.save_background_annotations, name='save_background_annotations'),
     path('transcription/<int:transcription_id>/background/upload/', views.upload_background_image, name='upload_background_image'),
     path('transcription/<int:transcription_id>/combined/', views.combined_annotations, name='combined_annotations'),
+    path('transcription/<int:transcription_id>/media/', views.media_chunks, name='media_chunks'),
+    path('transcription/<int:transcription_id>/media/upload/', views.upload_media, name='upload_media'),
+    path('transcription/<int:transcription_id>/media/deselect/', views.deselect_media, name='deselect_media'),
     path('transcription/<int:transcription_id>/frames/save/', views.save_frames_to_db, name='save_frames_to_db'),
     path('transcription/<int:transcription_id>/frames/update/', views.update_frames_from_annotations, name='update_frames_from_annotations'),
 ]

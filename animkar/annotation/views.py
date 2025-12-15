@@ -3,6 +3,7 @@ import json
 import requests
 import shutil
 from datetime import datetime
+from pathlib import Path
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -1012,9 +1013,12 @@ def save_frames_to_db(request, transcription_id):
         # Generate frames using the same algorithm as frontend
         frames = generate_frames_from_words(word_data)
 
+        # Assign media to frames based on mode chunks
+        frames_with_media = assign_media_to_frames_list(frames, transcription)
+
         # Save frames to database
         frame_objects = []
-        for frame in frames:
+        for frame in frames_with_media:
             frame_obj = FrameAnnotation(
                 transcription=transcription,
                 frame_number=frame['frame'],
@@ -1031,7 +1035,7 @@ def save_frames_to_db(request, transcription_id):
                 head_tilt=frame.get('head_tilt', 0),
                 zoom_level=frame.get('zoom_level', 1.0),
                 blink=frame.get('blink', False),
-                media=''  # Initially empty
+                media=frame.get('media', '')  # Now includes media assignments
             )
             frame_objects.append(frame_obj)
 
@@ -1187,3 +1191,510 @@ def generate_frames_from_words(word_data):
                 })
 
     return frames
+
+
+def media_chunks(request, transcription_id):
+    """Display media chunks management interface for mode chunks"""
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    # Calculate coverage status for all annotation types
+    coverage_status = {}
+
+    # Emotion coverage
+    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['emotion_complete'] = emotion_count == transcription.word_timestamps.count()
+
+    # Body posture coverage
+    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['body_complete'] = body_count == transcription.word_timestamps.count()
+
+    # Mode coverage
+    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['mode_complete'] = mode_count == transcription.word_timestamps.count()
+
+    # Characters coverage
+    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['characters_complete'] = characters_count == transcription.word_timestamps.count()
+
+    # Background coverage
+    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
+    coverage_status['background_complete'] = background_count == transcription.word_timestamps.count()
+
+    # Generate mode chunks
+    chunks_data = generate_mode_chunks(transcription)
+
+    context = {
+        'transcription': transcription,
+        'chunks_data': chunks_data,
+        'coverage_status': coverage_status,
+        'active_page': 'media',
+    }
+
+    return render(request, 'annotation/media_chunks.html', context)
+
+
+@require_POST
+@csrf_exempt
+def upload_media(request, transcription_id):
+    """Handle media upload for a chunk"""
+    try:
+        transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+        chunk_idx = int(request.POST.get('chunk_idx', 0))
+        description = request.POST.get('description', '')
+
+        # Create media directory if not exists
+        media_dir = f"projects/{transcription.project.id}/media"
+        Path(media_dir).mkdir(parents=True, exist_ok=True)
+
+        uploaded_files = []
+
+        if 'media_files' in request.FILES:
+            files = request.FILES.getlist('media_files')
+
+            for uploaded_file in files:
+                # Validate file type
+                allowed_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv', '.gif']
+                file_extension = os.path.splitext(uploaded_file.name)[1].lower()
+
+                if file_extension not in allowed_extensions:
+                    return JsonResponse({'error': f'Invalid file type: {file_extension}'}, status=400)
+
+                # Generate unique filename with chunk prefix
+                base_name = os.path.splitext(uploaded_file.name)[0]
+                unique_name = f"chunk_{chunk_idx}_{uploaded_file.name}"
+                dest_path = os.path.join(media_dir, unique_name)
+
+                # Check if file already exists in the media directory (across all chunks)
+                counter = 1
+                while os.path.exists(dest_path):
+                    name_parts = os.path.splitext(uploaded_file.name)
+                    unique_name = f"chunk_{chunk_idx}_{name_parts[0]}_{counter}{name_parts[1]}"
+                    dest_path = os.path.join(media_dir, unique_name)
+                    counter += 1
+
+                # Save the file
+                with open(dest_path, 'wb+') as destination:
+                    for chunk in uploaded_file.chunks():
+                        destination.write(chunk)
+
+                uploaded_files.append(unique_name)
+
+        # Update FrameAnnotation records in database
+        update_frame_annotations_media(transcription, chunk_idx, uploaded_files)
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Successfully uploaded {len(uploaded_files)} file(s) and updated database',
+            'uploaded_files': uploaded_files
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': f'Upload failed: {str(e)}'}, status=500)
+
+
+@require_POST
+def deselect_media(request, transcription_id):
+    """Deselect media for a chunk"""
+    try:
+        transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+        chunk_idx = int(request.POST.get('chunk_idx', 0))
+
+        # Clear media for this chunk in database
+        update_frame_annotations_media(transcription, chunk_idx, [])
+
+        # Delete associated files
+        media_dir = f"projects/{transcription.project.id}/media"
+        if os.path.exists(media_dir):
+            for filename in os.listdir(media_dir):
+                if filename.startswith(f'chunk_{chunk_idx}_'):
+                    try:
+                        os.remove(os.path.join(media_dir, filename))
+                    except OSError:
+                        pass  # Ignore if file doesn't exist or can't be deleted
+
+        return JsonResponse({'success': True, 'message': 'Media deselected successfully'})
+
+    except Exception as e:
+        return JsonResponse({'error': f'Deselect failed: {str(e)}'}, status=500)
+
+
+def generate_mode_chunks(transcription):
+    """Generate mode chunks from word annotations"""
+    word_timestamps = transcription.word_timestamps.order_by('start_time_seconds')
+
+    if not word_timestamps.exists():
+        return []
+
+    chunks = []
+    current_chunk = None
+
+    for wt in word_timestamps:
+        try:
+            mode = wt.mode_annotation.mode
+        except ModeAnnotation.DoesNotExist:
+            mode = 'big_center'  # Default mode
+
+        # Get all words in this mode segment
+        words = []
+        start_time = wt.start_time_seconds
+        end_time = wt.end_time_seconds
+
+        # Group consecutive words with same mode
+        if current_chunk and current_chunk['Mode'] == mode:
+            # Extend current chunk
+            current_chunk['Words'] += f" {wt.word}"
+            current_chunk['Duration'] = end_time - current_chunk['Start']
+        else:
+            # Start new chunk
+            if current_chunk:
+                chunks.append(current_chunk)
+
+            current_chunk = {
+                'Mode': mode,
+                'Words': wt.word,
+                'Start': start_time,
+                'Duration': end_time - start_time,
+                'media': ''
+            }
+
+    # Add the last chunk
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    # Load existing media assignments from database
+    # Check if we have FrameAnnotation records for this transcription
+    if FrameAnnotation.objects.filter(transcription=transcription).exists():
+        # Get media assignments by analyzing FrameAnnotation records
+        chunk_media_assignments = get_chunk_media_from_frames(transcription, chunks)
+        for idx, chunk in enumerate(chunks):
+            media_value = chunk_media_assignments.get(idx, '')
+            if media_value:
+                # Convert pipe-separated string to list for template
+                media_files = [f.strip() for f in str(media_value).split('|') if f.strip()]
+                chunks[idx]['media_files'] = media_files
+                chunks[idx]['media'] = str(media_value).strip()
+            else:
+                chunks[idx]['media_files'] = []
+    else:
+        # No FrameAnnotation records yet, initialize empty media
+        for chunk in chunks:
+            chunk['media_files'] = []
+
+    return chunks
+
+
+def get_chunk_media_from_frames(transcription, chunks):
+    """Extract media assignments from FrameAnnotation records for each chunk"""
+    chunk_media = {}
+
+    # Create mode segments (same logic as update_frame_annotations_media)
+    mode_segments = []
+    current_time = 0
+
+    for chunk in chunks:
+        start_time = current_time
+        duration = chunk['Duration']
+        end_time = start_time + duration
+        mode = chunk['Mode']
+
+        mode_segments.append({
+            'start_time': start_time,
+            'end_time': end_time,
+            'mode': mode,
+            'chunk_idx': len(mode_segments)
+        })
+
+        current_time = end_time
+
+    # Query FrameAnnotation records and group media by chunk
+    frame_annotations = FrameAnnotation.objects.filter(transcription=transcription).order_by('time_seconds')
+
+    for frame in frame_annotations:
+        frame_time = frame.time_seconds
+        frame_mode = frame.mode
+        frame_media = frame.media.strip()
+
+        if frame_media:
+            # Find which chunk this frame belongs to
+            for segment in mode_segments:
+                if segment['start_time'] <= frame_time < segment['end_time'] and segment['mode'] == frame_mode:
+                    chunk_idx = segment['chunk_idx']
+                    if chunk_idx not in chunk_media:
+                        chunk_media[chunk_idx] = set()
+                    # Split media if it contains multiple files
+                    for media_file in frame_media.split('|'):
+                        chunk_media[chunk_idx].add(media_file.strip())
+                    break
+
+    # Convert sets back to pipe-separated strings
+    result = {}
+    for chunk_idx, media_set in chunk_media.items():
+        if media_set:
+            result[chunk_idx] = '|'.join(sorted(media_set))
+
+    return result
+
+
+def update_chunk_media_csv(transcription, chunk_idx, new_files):
+    """Update the media column in mode_durations.csv"""
+    import pandas as pd
+
+    chunks_csv_path = f"projects/{transcription.project.id}/mode_durations.csv"
+
+    # Generate chunks data
+    chunks_data = generate_mode_chunks(transcription)
+
+    # Create DataFrame
+    df_data = []
+    for chunk in chunks_data:
+        df_data.append({
+            'Mode': chunk['Mode'],
+            'Duration': chunk['Duration'],
+            'Words': chunk['Words'],
+            'media': chunk['media']
+        })
+
+    df = pd.DataFrame(df_data)
+
+    # Update media for specific chunk
+    if chunk_idx < len(df):
+        if new_files:
+            df.at[chunk_idx, 'media'] = '|'.join(new_files)
+        else:
+            df.at[chunk_idx, 'media'] = ''
+
+    # Save CSV
+    df.to_csv(chunks_csv_path, index=False)
+
+    # Update frame phoneme data with media assignments
+    update_frame_media_assignments(transcription, df)
+
+
+def update_frame_media_assignments(transcription, df_mode_durations):
+    """Update frame phoneme data CSV with media assignments"""
+    try:
+        frame_phoneme_csv_path = f"projects/{transcription.project.id}/frame_phoneme_data.csv"
+
+        # Check if frame phoneme data exists
+        if not os.path.exists(frame_phoneme_csv_path):
+            print(f"Frame phoneme data CSV not found: {frame_phoneme_csv_path}. Skipping media assignment.")
+            return
+
+        print("Updating frame phonemes data with media assignments...")
+
+        # Read frame phoneme data
+        df_frames = pd.read_csv(frame_phoneme_csv_path)
+
+        # Ensure Frame column exists
+        if 'Frame' not in df_frames.columns:
+            print("Warning: 'Frame' column not found in frame phoneme data. Skipping media assignment.")
+            return
+
+        # Update media assignments using the DataCombiner pattern
+        updated_df_frames = assign_media_to_frames(df_frames, df_mode_durations, fps=30)
+
+        # Save the updated frame phoneme data
+        updated_df_frames.to_csv(frame_phoneme_csv_path, index=False)
+
+        print(f"Successfully updated frame phoneme data with media assignments at: {frame_phoneme_csv_path}")
+
+    except Exception as e:
+        print(f"Error updating frame phoneme data: {str(e)}")
+
+
+def assign_media_to_frames(df_frames, df_mode_durations, fps=30):
+    """Assign media to frames based on mode chunks"""
+    # Add media column if it doesn't exist
+    if 'media' not in df_frames.columns:
+        df_frames['media'] = ''
+
+    # Create time-to-mode mapping
+    mode_segments = []
+    current_time = 0
+
+    for idx, chunk in df_mode_durations.iterrows():
+        start_time = current_time
+        duration = chunk['Duration']
+        end_time = start_time + duration
+        mode = chunk['Mode']
+        media = chunk.get('media', '')
+
+        mode_segments.append({
+            'start_time': start_time,
+            'end_time': end_time,
+            'mode': mode,
+            'media': media
+        })
+
+        current_time = end_time
+
+    # Assign media to frames
+    for idx, frame in df_frames.iterrows():
+        frame_time = frame['time_seconds']
+        frame_mode = frame.get('mode', '')
+
+        # Find matching mode segment
+        for segment in mode_segments:
+            if segment['start_time'] <= frame_time < segment['end_time'] and segment['mode'] == frame_mode:
+                df_frames.at[idx, 'media'] = segment['media']
+                break
+
+    return df_frames
+
+
+def update_frame_annotations_media(transcription, chunk_idx, uploaded_files):
+    """Update FrameAnnotation records in database with media assignments"""
+    try:
+        # Generate mode chunks from current database annotations
+        word_timestamps = transcription.word_timestamps.order_by('start_time_seconds')
+
+        if not word_timestamps.exists():
+            return
+
+        chunks = []
+        current_chunk = None
+
+        for wt in word_timestamps:
+            try:
+                mode = wt.mode_annotation.mode
+            except ModeAnnotation.DoesNotExist:
+                mode = 'big_center'  # Default mode
+
+            start_time = wt.start_time_seconds
+            end_time = wt.end_time_seconds
+
+            # Group consecutive words with same mode
+            if current_chunk and current_chunk['Mode'] == mode:
+                # Extend current chunk
+                current_chunk['Words'] += f" {wt.word}"
+                current_chunk['Duration'] = end_time - current_chunk['Start']
+            else:
+                # Start new chunk
+                if current_chunk:
+                    chunks.append(current_chunk)
+
+                current_chunk = {
+                    'Mode': mode,
+                    'Words': wt.word,
+                    'Start': start_time,
+                    'Duration': end_time - start_time,
+                    'media': ''
+                }
+
+        # Add the last chunk
+        if current_chunk:
+            chunks.append(current_chunk)
+
+        # Load existing media assignments from database to preserve other chunks
+        existing_media_assignments = get_chunk_media_from_frames(transcription, chunks)
+
+        # Update media assignment for the specific chunk
+        if chunk_idx < len(chunks):
+            if uploaded_files:
+                chunks[chunk_idx]['media'] = '|'.join(uploaded_files)
+            else:
+                chunks[chunk_idx]['media'] = ''
+        # Preserve existing media for other chunks
+        for idx, chunk in enumerate(chunks):
+            if idx != chunk_idx and idx in existing_media_assignments:
+                chunk['media'] = existing_media_assignments[idx]
+
+        # Create mode segments for media assignment
+        mode_segments = []
+        current_time = 0
+
+        for chunk in chunks:
+            start_time = current_time
+            duration = chunk['Duration']
+            end_time = start_time + duration
+            mode = chunk['Mode']
+            media = chunk.get('media', '')
+
+            mode_segments.append({
+                'start_time': start_time,
+                'end_time': end_time,
+                'mode': mode,
+                'media': media
+            })
+
+            current_time = end_time
+
+        # Update FrameAnnotation records in database
+        frame_annotations = FrameAnnotation.objects.filter(transcription=transcription)
+
+        for frame_annotation in frame_annotations:
+            frame_time = frame_annotation.time_seconds
+            frame_mode = frame_annotation.mode
+
+            # Find matching mode segment
+            matching_media = ''
+            for segment in mode_segments:
+                if segment['start_time'] <= frame_time < segment['end_time'] and segment['mode'] == frame_mode:
+                    matching_media = segment['media']
+                    break
+
+            # Update the media field
+            frame_annotation.media = matching_media
+            frame_annotation.save(update_fields=['media'])
+
+    except Exception as e:
+        print(f"Error updating frame annotations media: {str(e)}")
+        # Don't raise exception to avoid breaking the upload process
+
+
+def assign_media_to_frames_list(frames, transcription):
+    """Assign media to frames list based on mode chunks"""
+    import pandas as pd
+
+    # Load mode durations CSV
+    chunks_csv_path = f"projects/{transcription.project.id}/mode_durations.csv"
+    if not os.path.exists(chunks_csv_path):
+        # No media assignments yet, return frames as-is
+        for frame in frames:
+            frame['media'] = ''
+        return frames
+
+    try:
+        df_mode_durations = pd.read_csv(chunks_csv_path)
+
+        # Create time-to-mode mapping
+        mode_segments = []
+        current_time = 0
+
+        for idx, chunk in df_mode_durations.iterrows():
+            start_time = current_time
+            duration = chunk['Duration']
+            end_time = start_time + duration
+            mode = chunk['Mode']
+            media = chunk.get('media', '')
+
+            mode_segments.append({
+                'start_time': start_time,
+                'end_time': end_time,
+                'mode': mode,
+                'media': media
+            })
+
+            current_time = end_time
+
+        # Assign media to frames
+        for frame in frames:
+            frame_time = frame['time']
+            frame_mode = frame.get('mode', '')
+
+            # Find matching mode segment
+            for segment in mode_segments:
+                if segment['start_time'] <= frame_time < segment['end_time'] and segment['mode'] == frame_mode:
+                    frame['media'] = segment['media']
+                    break
+            else:
+                frame['media'] = ''
+
+        return frames
+
+    except Exception as e:
+        print(f"Error assigning media to frames: {e}")
+        # Return frames with empty media on error
+        for frame in frames:
+            frame['media'] = ''
+        return frames

@@ -52,6 +52,13 @@
                    title="View all annotations combined">
                     📊 Combine
                 </a>
+                {% comment %} Media Addition Button {% endcomment %}
+                <a href="{% url 'annotation:media_chunks' transcription.pk %}"
+                   class="btn btn-sm
+                   {% if active_page == 'media' %}btn-primary{% else %}btn-outline-warning{% endif %}"
+                   title="Manage media for mode chunks">
+                    🎬 Media Addition
+                </a>
             </div>
         </div>
     </div>
