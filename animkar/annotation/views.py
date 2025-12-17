@@ -748,7 +748,8 @@ def annotate_background(request, transcription_id):
 
     # Get list of available background images for this project
     available_images = []
-    project_media_dir = os.path.join('projects', str(transcription.project.id), 'media')
+    from django.conf import settings
+    project_media_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id), 'media')
     if os.path.exists(project_media_dir):
         for filename in os.listdir(project_media_dir):
             if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
@@ -922,8 +923,9 @@ def upload_background_image(request, transcription_id):
         if hasattr(image_file, 'content_type') and image_file.content_type not in allowed_types:
             return JsonResponse({'error': 'Invalid file type. Only PNG, JPG, BMP, and GIF are allowed.'}, status=400)
 
-        # Create project media directory if it doesn't exist
-        project_dir = os.path.join('projects', str(transcription.project.id))
+        # Create project media directory within MEDIA_ROOT
+        from django.conf import settings
+        project_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id))
         media_dir = os.path.join(project_dir, 'media')
         os.makedirs(media_dir, exist_ok=True)
 
@@ -1242,9 +1244,10 @@ def upload_media(request, transcription_id):
         chunk_idx = int(request.POST.get('chunk_idx', 0))
         description = request.POST.get('description', '')
 
-        # Create media directory if not exists
-        media_dir = f"projects/{transcription.project.id}/media"
-        Path(media_dir).mkdir(parents=True, exist_ok=True)
+        # Create media directory within MEDIA_ROOT
+        from django.conf import settings
+        media_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id), 'media')
+        os.makedirs(media_dir, exist_ok=True)
 
         uploaded_files = []
 
@@ -1303,7 +1306,8 @@ def deselect_media(request, transcription_id):
         update_frame_annotations_media(transcription, chunk_idx, [])
 
         # Delete associated files
-        media_dir = f"projects/{transcription.project.id}/media"
+        from django.conf import settings
+        media_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id), 'media')
         if os.path.exists(media_dir):
             for filename in os.listdir(media_dir):
                 if filename.startswith(f'chunk_{chunk_idx}_'):
@@ -1438,8 +1442,9 @@ def get_chunk_media_from_frames(transcription, chunks):
 def update_chunk_media_csv(transcription, chunk_idx, new_files):
     """Update the media column in mode_durations.csv"""
     import pandas as pd
+    from django.conf import settings
 
-    chunks_csv_path = f"projects/{transcription.project.id}/mode_durations.csv"
+    chunks_csv_path = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id), 'annotations', 'mode_durations.csv')
 
     # Generate chunks data
     chunks_data = generate_mode_chunks(transcription)
@@ -1473,7 +1478,8 @@ def update_chunk_media_csv(transcription, chunk_idx, new_files):
 def update_frame_media_assignments(transcription, df_mode_durations):
     """Update frame phoneme data CSV with media assignments"""
     try:
-        frame_phoneme_csv_path = f"projects/{transcription.project.id}/frame_phoneme_data.csv"
+        from django.conf import settings
+        frame_phoneme_csv_path = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id), 'annotations', 'frame_phoneme_data.csv')
 
         # Check if frame phoneme data exists
         if not os.path.exists(frame_phoneme_csv_path):
@@ -1645,9 +1651,10 @@ def update_frame_annotations_media(transcription, chunk_idx, uploaded_files):
 def assign_media_to_frames_list(frames, transcription):
     """Assign media to frames list based on mode chunks"""
     import pandas as pd
+    from django.conf import settings
 
     # Load mode durations CSV
-    chunks_csv_path = f"projects/{transcription.project.id}/mode_durations.csv"
+    chunks_csv_path = os.path.join(settings.MEDIA_ROOT, 'projects', str(transcription.project.id), 'annotations', 'mode_durations.csv')
     if not os.path.exists(chunks_csv_path):
         # No media assignments yet, return frames as-is
         for frame in frames:

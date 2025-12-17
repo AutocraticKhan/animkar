@@ -5,9 +5,9 @@ import os
 
 def project_audio_upload_path(instance, filename):
     """
-    Generate upload path for audio files: audio_transcriptions/project_{id}/{filename}
+    Generate upload path for audio files: projects/{id}/audio/{filename}
     """
-    return f"audio_transcriptions/project_{instance.project.id}/{filename}"
+    return f"projects/{instance.project.id}/audio/{filename}"
 
 class AudioTranscription(models.Model):
     STATUS_CHOICES = [
