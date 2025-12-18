@@ -1,0 +1,162 @@
+{
+    "angry.png": {
+        "size": [
+            372,
+            117
+        ],
+        "location": [
+            198,
+            315
+        ]
+    },
+    "angry_2.png": {
+        "size": [
+            397,
+            149
+        ],
+        "location": [
+            174,
+            270
+        ]
+    },
+    "bore.png": {
+        "size": [
+            369,
+            173
+        ],
+        "location": [
+            209,
+            256
+        ]
+    },
+    "bore_2.png": {
+        "size": [
+            356,
+            184
+        ],
+        "location": [
+            215,
+            243
+        ]
+    },
+    "content.png": {
+        "size": [
+            348,
+            158
+        ],
+        "location": [
+            215,
+            270
+        ]
+    },
+    "content_2.png": {
+        "size": [
+            325,
+            167
+        ],
+        "location": [
+            243,
+            256
+        ]
+    },
+    "glare.png": {
+        "size": [
+            336,
+            119
+        ],
+        "location": [
+            222,
+            311
+        ]
+    },
+    "glare_2.png": {
+        "size": [
+            359,
+            108
+        ],
+        "location": [
+            209,
+            311
+        ]
+    },
+    "happy.png": {
+        "size": [
+            310,
+            162
+        ],
+        "location": [
+            243,
+            277
+        ]
+    },
+    "happy_2.png": {
+        "size": [
+            315,
+            162
+        ],
+        "location": [
+            229,
+            277
+        ]
+    },
+    "sad.png": {
+        "size": [
+            340,
+            116
+        ],
+        "location": [
+            222,
+            297
+        ]
+    },
+    "sad_2.png": {
+        "size": [
+            343,
+            172
+        ],
+        "location": [
+            229,
+            256
+        ]
+    },
+    "sarcasm.png": {
+        "size": [
+            335,
+            178
+        ],
+        "location": [
+            229,
+            256
+        ]
+    },
+    "sarcasm_2.png": {
+        "size": [
+            338,
+            155
+        ],
+        "location": [
+            229,
+            256
+        ]
+    },
+    "worried.png": {
+        "size": [
+            348,
+            152
+        ],
+        "location": [
+            215,
+            263
+        ]
+    },
+    "worried_2.png": {
+        "size": [
+            338,
+            181
+        ],
+        "location": [
+            222,
+            250
+        ]
+    }
+}

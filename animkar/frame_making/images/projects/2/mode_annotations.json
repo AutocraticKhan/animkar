@@ -1,0 +1,188 @@
+{
+  "project_id": 2,
+  "original_text": " Hey there, wonderful humans. Today I'm here to prove I'm absolutely not a badly animated PNG pretending to have feelings. Actually, this script has 8 emotions, 12 postures, 4 modes, and I agreed to all of this. Why do I do this to myself? So this is me, being totally calm. Look at this calmness. Doctors hate it. Behold, boredom. This is my default mode during long meetings and lectures starting with according to the syllabus Whoa! Something actually interesting Oh yes, because obviously the world was waiting for another creatively edited video Revolutionary Wait, where did I go? Wow! Editor moved me to side like an unnecessary variable Dude! A potato? Really? this is why editors should not have freedom you know what hurts the potato got more screen time than me that's it editor stop adding sound effects every time I blink I don't need a whoosh for existing okay deep breaths maybe the audience still respects me no but okay cool cool cool and that dear viewers is the power of editing emotions done postures done random potato cameo extremely done if you still didn't hire this editor you're probably the potato",
+  "annotations": [
+    {
+      "text": " Hey there, wonderful human",
+      "mode": "big_center",
+      "position": 0,
+      "length": 27,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "s. Today I'm here to prove I'm absolutely not a badly animated PNG pretending to have feelings",
+      "mode": "big_center",
+      "position": 27,
+      "length": 94,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": ". Actually, this script has 8 emotions, 12 postures, 4 modes, and I agreed to all of thi",
+      "mode": "big_side",
+      "position": 121,
+      "length": 88,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "s. Why do I do this to myself? So",
+      "mode": "big_center",
+      "position": 209,
+      "length": 33,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": " this is me, being totally calm.",
+      "mode": "big_side",
+      "position": 242,
+      "length": 32,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": " Look at this calmness. ",
+      "mode": "small_side",
+      "position": 274,
+      "length": 24,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "Doctors hate it. ",
+      "mode": "small_side",
+      "position": 298,
+      "length": 17,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "Behold, boredom. ",
+      "mode": "small_side",
+      "position": 315,
+      "length": 17,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "This is my default mode during long meetings and lectures starting with according to the syllabu",
+      "mode": "small_side",
+      "position": 332,
+      "length": 96,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "s Whoa! Something actually interes",
+      "mode": "big_side",
+      "position": 428,
+      "length": 34,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "ting Oh yes, because obviously the world was waiting for another creatively edited video Revolutio",
+      "mode": "big_side",
+      "position": 462,
+      "length": 98,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "nary Wait, where did I go",
+      "mode": "big_center",
+      "position": 560,
+      "length": 25,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "? Wow! Editor moved me to side like an unnecessary variabl",
+      "mode": "small_side",
+      "position": 585,
+      "length": 58,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "e Dude! A potato? Really?",
+      "mode": "small_side",
+      "position": 643,
+      "length": 25,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": " this is why editors should not have freedom",
+      "mode": "small_side",
+      "position": 668,
+      "length": 44,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": " you know what hurts",
+      "mode": "big_center",
+      "position": 712,
+      "length": 20,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": " the potato got more screen time than me",
+      "mode": "big_center",
+      "position": 732,
+      "length": 40,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": " that's it editor stop adding sound effects every time I blink I don't need a whoosh for exist",
+      "mode": "big_center",
+      "position": 772,
+      "length": 94,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "ing okay deep brea",
+      "mode": "big_center",
+      "position": 866,
+      "length": 18,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "ths maybe the audience still respect",
+      "mode": "big_center",
+      "position": 884,
+      "length": 36,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "s me no but okay cool cool ",
+      "mode": "big_center",
+      "position": 920,
+      "length": 27,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "cool and that dear viewers is the power of edit",
+      "mode": "big_center",
+      "position": 947,
+      "length": 47,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "ing emotions done postures done random potato cameo extremely do",
+      "mode": "big_side",
+      "position": 994,
+      "length": 64,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "ne if you still didn't hire this editor you're probably the potat",
+      "mode": "big_center",
+      "position": 1058,
+      "length": 65,
+      "timestamp": "2025-11-29T12:22:33.165263"
+    },
+    {
+      "text": "o",
+      "mode": "big_center",
+      "position": 1123,
+      "length": 1,
+      "timestamp": "2025-11-29T12:22:45.455405"
+    }
+  ],
+  "export_date": "2025-11-29T12:22:45.473102",
+  "total_annotations": 25,
+  "mode_summary": {
+    "big_center": 13,
+    "big_side": 5,
+    "small_side": 7
+  }
+}

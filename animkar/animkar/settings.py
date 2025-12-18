@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'audio_transcription',
     'project_manager',
     'annotation',
+    'frame_making',
 ]
 
 MIDDLEWARE = [

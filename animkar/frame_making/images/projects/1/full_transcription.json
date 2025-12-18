@@ -1,0 +1,3192 @@
+{
+  "metadata": {
+    "total_words": 195,
+    "high_confidence_words": 195,
+    "confidence_threshold": 0.3,
+    "language": "hi",
+    "model": "large-v3",
+    "audio_duration_seconds": 99.17,
+    "sample_accurate_processing": false,
+    "timestamp_precision": "float-based (±1ms)",
+    "vad_config": {
+      "vad_threshold": 0.35,
+      "vad_min_speech_duration_ms": 250,
+      "vad_max_speech_duration_s": 30
+    },
+    "transcription_config": {
+      "temperature": [
+        0.0,
+        0.2,
+        0.4
+      ],
+      "compression_ratio_threshold": 2.4,
+      "logprob_threshold": -1.0,
+      "no_speech_threshold": 0.6,
+      "condition_on_previous_text": true
+    }
+  },
+  "transcription": {
+    "text": " Hey there, wonderful humans. Today I'm here to prove I'm absolutely not a badly animated PNG pretending to have feelings. Actually, this script has 8 emotions, 12 postures, 4 modes, and I agreed to all of this. Why do I do this to myself? So this is me, being totally calm. Look at this calmness. Doctors hate it. Behold, boredom. This is my default mode during long meetings and lectures starting with according to the syllabus Whoa! Something actually interesting Oh yes, because obviously the world was waiting for another creatively edited video Revolutionary Wait, where did I go? Wow! Editor moved me to side like an unnecessary variable Dude! A potato? Really? this is why editors should not have freedom you know what hurts the potato got more screen time than me that's it editor stop adding sound effects every time I blink I don't need a whoosh for existing okay deep breaths maybe the audience still respects me no but okay cool cool cool and that dear viewers is the power of editing emotions done postures done random potato cameo extremely done if you still didn't hire this editor you're probably the potato",
+    "segments": [
+      {
+        "id": 0,
+        "seek": 0,
+        "start": 0.0,
+        "end": 1.62,
+        "text": " Hey there, wonderful humans.",
+        "tokens": [
+          50365,
+          1911,
+          456,
+          11,
+          3715,
+          6255,
+          13,
+          50458
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 0.889,
+        "words": [
+          {
+            "text": "Hey",
+            "start": 0.0,
+            "end": 0.3,
+            "confidence": 0.635
+          },
+          {
+            "text": "there,",
+            "start": 0.3,
+            "end": 0.62,
+            "confidence": 0.992
+          },
+          {
+            "text": "wonderful",
+            "start": 0.68,
+            "end": 1.16,
+            "confidence": 0.994
+          },
+          {
+            "text": "humans.",
+            "start": 1.16,
+            "end": 1.62,
+            "confidence": 0.999
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "seek": 0,
+        "start": 2.86,
+        "end": 7.4,
+        "text": " Today I'm here to prove I'm absolutely not a badly animated PNG pretending to have feelings.",
+        "tokens": [
+          50511,
+          2692,
+          286,
+          478,
+          510,
+          281,
+          7081,
+          286,
+          478,
+          3122,
+          406,
+          257,
+          13425,
+          18947,
+          430,
+          30237,
+          22106,
+          281,
+          362,
+          6640,
+          13,
+          50745
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 0.991,
+        "words": [
+          {
+            "text": "Today",
+            "start": 2.86,
+            "end": 3.02,
+            "confidence": 1.0
+          },
+          {
+            "text": "I'm",
+            "start": 3.02,
+            "end": 3.36,
+            "confidence": 0.989
+          },
+          {
+            "text": "here",
+            "start": 3.36,
+            "end": 3.48,
+            "confidence": 1.0
+          },
+          {
+            "text": "to",
+            "start": 3.48,
+            "end": 3.64,
+            "confidence": 1.0
+          },
+          {
+            "text": "prove",
+            "start": 3.64,
+            "end": 3.82,
+            "confidence": 1.0
+          },
+          {
+            "text": "I'm",
+            "start": 3.82,
+            "end": 4.12,
+            "confidence": 0.981
+          },
+          {
+            "text": "absolutely",
+            "start": 4.12,
+            "end": 4.44,
+            "confidence": 0.987
+          },
+          {
+            "text": "not",
+            "start": 4.44,
+            "end": 4.78,
+            "confidence": 0.995
+          },
+          {
+            "text": "a",
+            "start": 4.78,
+            "end": 4.96,
+            "confidence": 0.999
+          },
+          {
+            "text": "badly",
+            "start": 4.96,
+            "end": 5.3,
+            "confidence": 0.998
+          },
+          {
+            "text": "animated",
+            "start": 5.3,
+            "end": 5.66,
+            "confidence": 1.0
+          },
+          {
+            "text": "PNG",
+            "start": 5.66,
+            "end": 6.26,
+            "confidence": 0.976
+          },
+          {
+            "text": "pretending",
+            "start": 6.26,
+            "end": 6.68,
+            "confidence": 0.968
+          },
+          {
+            "text": "to",
+            "start": 6.68,
+            "end": 6.94,
+            "confidence": 1.0
+          },
+          {
+            "text": "have",
+            "start": 6.94,
+            "end": 7.12,
+            "confidence": 1.0
+          },
+          {
+            "text": "feelings.",
+            "start": 7.12,
+            "end": 7.4,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "seek": 0,
+        "start": 8.62,
+        "end": 13.62,
+        "text": " Actually, this script has 8 emotions, 12 postures, 4 modes, and I agreed to all of this.",
+        "tokens": [
+          50799,
+          5135,
+          11,
+          341,
+          5755,
+          575,
+          1649,
+          8462,
+          11,
+          2272,
+          2183,
+          1303,
+          11,
+          1017,
+          14068,
+          11,
+          293,
+          286,
+          9166,
+          281,
+          439,
+          295,
+          341,
+          13,
+          51052
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 0.993,
+        "words": [
+          {
+            "text": "Actually,",
+            "start": 8.62,
+            "end": 8.9,
+            "confidence": 1.0
+          },
+          {
+            "text": "this",
+            "start": 9.12,
+            "end": 9.44,
+            "confidence": 1.0
+          },
+          {
+            "text": "script",
+            "start": 9.44,
+            "end": 9.74,
+            "confidence": 1.0
+          },
+          {
+            "text": "has",
+            "start": 9.74,
+            "end": 9.96,
+            "confidence": 1.0
+          },
+          {
+            "text": "8",
+            "start": 9.96,
+            "end": 10.16,
+            "confidence": 0.945
+          },
+          {
+            "text": "emotions,",
+            "start": 10.16,
+            "end": 10.56,
+            "confidence": 0.999
+          },
+          {
+            "text": "12",
+            "start": 10.72,
+            "end": 11.14,
+            "confidence": 0.999
+          },
+          {
+            "text": "postures,",
+            "start": 11.14,
+            "end": 11.68,
+            "confidence": 1.0
+          },
+          {
+            "text": "4",
+            "start": 11.78,
+            "end": 12.02,
+            "confidence": 1.0
+          },
+          {
+            "text": "modes,",
+            "start": 12.02,
+            "end": 12.3,
+            "confidence": 1.0
+          },
+          {
+            "text": "and",
+            "start": 12.42,
+            "end": 12.66,
+            "confidence": 1.0
+          },
+          {
+            "text": "I",
+            "start": 12.66,
+            "end": 12.76,
+            "confidence": 1.0
+          },
+          {
+            "text": "agreed",
+            "start": 12.76,
+            "end": 12.94,
+            "confidence": 0.928
+          },
+          {
+            "text": "to",
+            "start": 12.94,
+            "end": 13.14,
+            "confidence": 1.0
+          },
+          {
+            "text": "all",
+            "start": 13.14,
+            "end": 13.28,
+            "confidence": 1.0
+          },
+          {
+            "text": "of",
+            "start": 13.28,
+            "end": 13.42,
+            "confidence": 1.0
+          },
+          {
+            "text": "this.",
+            "start": 13.42,
+            "end": 13.62,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "seek": 0,
+        "start": 14.68,
+        "end": 15.88,
+        "text": " Why do I do this to myself?",
+        "tokens": [
+          51099,
+          1545,
+          360,
+          286,
+          360,
+          341,
+          281,
+          2059,
+          30,
+          51173
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "Why",
+            "start": 14.68,
+            "end": 14.82,
+            "confidence": 1.0
+          },
+          {
+            "text": "do",
+            "start": 14.82,
+            "end": 14.96,
+            "confidence": 1.0
+          },
+          {
+            "text": "I",
+            "start": 14.96,
+            "end": 15.12,
+            "confidence": 1.0
+          },
+          {
+            "text": "do",
+            "start": 15.12,
+            "end": 15.26,
+            "confidence": 1.0
+          },
+          {
+            "text": "this",
+            "start": 15.26,
+            "end": 15.46,
+            "confidence": 1.0
+          },
+          {
+            "text": "to",
+            "start": 15.46,
+            "end": 15.6,
+            "confidence": 1.0
+          },
+          {
+            "text": "myself?",
+            "start": 15.6,
+            "end": 15.88,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "seek": 0,
+        "start": 17.22,
+        "end": 19.22,
+        "text": " So this is me, being totally calm.",
+        "tokens": [
+          51225,
+          407,
+          341,
+          307,
+          385,
+          11,
+          885,
+          3879,
+          7151,
+          13,
+          51334
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "So",
+            "start": 17.22,
+            "end": 17.36,
+            "confidence": 1.0
+          },
+          {
+            "text": "this",
+            "start": 17.36,
+            "end": 17.52,
+            "confidence": 0.999
+          },
+          {
+            "text": "is",
+            "start": 17.52,
+            "end": 17.76,
+            "confidence": 1.0
+          },
+          {
+            "text": "me,",
+            "start": 17.76,
+            "end": 17.98,
+            "confidence": 1.0
+          },
+          {
+            "text": "being",
+            "start": 18.06,
+            "end": 18.48,
+            "confidence": 1.0
+          },
+          {
+            "text": "totally",
+            "start": 18.48,
+            "end": 18.86,
+            "confidence": 1.0
+          },
+          {
+            "text": "calm.",
+            "start": 18.86,
+            "end": 19.22,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "seek": 0,
+        "start": 20.3,
+        "end": 21.4,
+        "text": " Look at this calmness.",
+        "tokens": [
+          51382,
+          2053,
+          412,
+          341,
+          7151,
+          1287,
+          13,
+          51441
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "Look",
+            "start": 20.3,
+            "end": 20.5,
+            "confidence": 1.0
+          },
+          {
+            "text": "at",
+            "start": 20.5,
+            "end": 20.7,
+            "confidence": 1.0
+          },
+          {
+            "text": "this",
+            "start": 20.7,
+            "end": 20.88,
+            "confidence": 1.0
+          },
+          {
+            "text": "calmness.",
+            "start": 20.88,
+            "end": 21.4,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "seek": 0,
+        "start": 22.52,
+        "end": 23.44,
+        "text": " Doctors hate it.",
+        "tokens": [
+          51494,
+          39090,
+          4700,
+          309,
+          13,
+          51543
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "Doctors",
+            "start": 22.52,
+            "end": 22.84,
+            "confidence": 0.999
+          },
+          {
+            "text": "hate",
+            "start": 22.84,
+            "end": 23.2,
+            "confidence": 1.0
+          },
+          {
+            "text": "it.",
+            "start": 23.2,
+            "end": 23.44,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "seek": 0,
+        "start": 24.18,
+        "end": 25.62,
+        "text": " Behold, boredom.",
+        "tokens": [
+          51589,
+          879,
+          4104,
+          11,
+          13521,
+          298,
+          13,
+          51652
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1619095039367676,
+        "compression_ratio": 1.4410480349344978,
+        "no_speech_prob": 0.002286938950419426,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "Behold,",
+            "start": 24.18,
+            "end": 24.84,
+            "confidence": 1.0
+          },
+          {
+            "text": "boredom.",
+            "start": 24.98,
+            "end": 25.62,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "seek": 2574,
+        "start": 25.74,
+        "end": 30.92,
+        "text": " This is my default mode during long meetings and lectures starting with according to the syllabus",
+        "tokens": [
+          50365,
+          639,
+          307,
+          452,
+          7576,
+          4391,
+          1830,
+          938,
+          8410,
+          293,
+          16564,
+          2891,
+          365,
+          4650,
+          281,
+          264,
+          48077,
+          50636
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 0.949,
+        "words": [
+          {
+            "text": "This",
+            "start": 25.74,
+            "end": 26.74,
+            "confidence": 0.681
+          },
+          {
+            "text": "is",
+            "start": 26.74,
+            "end": 26.92,
+            "confidence": 0.998
+          },
+          {
+            "text": "my",
+            "start": 26.92,
+            "end": 27.12,
+            "confidence": 0.999
+          },
+          {
+            "text": "default",
+            "start": 27.12,
+            "end": 27.44,
+            "confidence": 0.999
+          },
+          {
+            "text": "mode",
+            "start": 27.44,
+            "end": 27.82,
+            "confidence": 0.996
+          },
+          {
+            "text": "during",
+            "start": 27.82,
+            "end": 28.04,
+            "confidence": 0.964
+          },
+          {
+            "text": "long",
+            "start": 28.04,
+            "end": 28.36,
+            "confidence": 0.996
+          },
+          {
+            "text": "meetings",
+            "start": 28.36,
+            "end": 28.64,
+            "confidence": 0.995
+          },
+          {
+            "text": "and",
+            "start": 28.64,
+            "end": 28.9,
+            "confidence": 0.978
+          },
+          {
+            "text": "lectures",
+            "start": 28.9,
+            "end": 29.24,
+            "confidence": 0.996
+          },
+          {
+            "text": "starting",
+            "start": 29.24,
+            "end": 29.64,
+            "confidence": 0.856
+          },
+          {
+            "text": "with",
+            "start": 29.64,
+            "end": 29.9,
+            "confidence": 0.999
+          },
+          {
+            "text": "according",
+            "start": 29.9,
+            "end": 30.16,
+            "confidence": 0.817
+          },
+          {
+            "text": "to",
+            "start": 30.16,
+            "end": 30.5,
+            "confidence": 0.999
+          },
+          {
+            "text": "the",
+            "start": 30.5,
+            "end": 30.64,
+            "confidence": 0.999
+          },
+          {
+            "text": "syllabus",
+            "start": 30.64,
+            "end": 30.92,
+            "confidence": 0.995
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "seek": 2574,
+        "start": 32.16,
+        "end": 34.82,
+        "text": " Whoa! Something actually interesting",
+        "tokens": [
+          50636,
+          7521,
+          0,
+          6595,
+          767,
+          1880,
+          50832
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 0.79,
+        "words": [
+          {
+            "text": "Whoa!",
+            "start": 32.16,
+            "end": 32.4,
+            "confidence": 0.537
+          },
+          {
+            "text": "Something",
+            "start": 32.56,
+            "end": 33.84,
+            "confidence": 0.726
+          },
+          {
+            "text": "actually",
+            "start": 33.84,
+            "end": 34.36,
+            "confidence": 0.999
+          },
+          {
+            "text": "interesting",
+            "start": 34.36,
+            "end": 34.82,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "seek": 2574,
+        "start": 36.06,
+        "end": 40.43,
+        "text": " Oh yes, because obviously the world was waiting for another creatively edited video",
+        "tokens": [
+          50832,
+          876,
+          2086,
+          11,
+          570,
+          2745,
+          264,
+          1002,
+          390,
+          3806,
+          337,
+          1071,
+          43750,
+          23016,
+          960,
+          51110
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 0.999,
+        "words": [
+          {
+            "text": "Oh",
+            "start": 36.06,
+            "end": 36.14,
+            "confidence": 1.0
+          },
+          {
+            "text": "yes,",
+            "start": 36.14,
+            "end": 36.46,
+            "confidence": 0.996
+          },
+          {
+            "text": "because",
+            "start": 36.6,
+            "end": 37.0,
+            "confidence": 1.0
+          },
+          {
+            "text": "obviously",
+            "start": 37.0,
+            "end": 37.38,
+            "confidence": 1.0
+          },
+          {
+            "text": "the",
+            "start": 37.38,
+            "end": 37.72,
+            "confidence": 1.0
+          },
+          {
+            "text": "world",
+            "start": 37.72,
+            "end": 38.04,
+            "confidence": 1.0
+          },
+          {
+            "text": "was",
+            "start": 38.04,
+            "end": 38.24,
+            "confidence": 1.0
+          },
+          {
+            "text": "waiting",
+            "start": 38.24,
+            "end": 38.52,
+            "confidence": 1.0
+          },
+          {
+            "text": "for",
+            "start": 38.52,
+            "end": 38.76,
+            "confidence": 1.0
+          },
+          {
+            "text": "another",
+            "start": 38.76,
+            "end": 39.02,
+            "confidence": 1.0
+          },
+          {
+            "text": "creatively",
+            "start": 39.02,
+            "end": 39.52,
+            "confidence": 0.998
+          },
+          {
+            "text": "edited",
+            "start": 39.52,
+            "end": 40.02,
+            "confidence": 1.0
+          },
+          {
+            "text": "video",
+            "start": 40.02,
+            "end": 40.43,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "seek": 2574,
+        "start": 40.43,
+        "end": 42.54,
+        "text": " Revolutionary",
+        "tokens": [
+          51110,
+          16617,
+          822,
+          51213
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 0.994,
+        "words": [
+          {
+            "text": "Revolutionary",
+            "start": 40.43,
+            "end": 42.54,
+            "confidence": 0.994
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "seek": 2574,
+        "start": 43.66,
+        "end": 44.72,
+        "text": " Wait, where did I go?",
+        "tokens": [
+          51213,
+          3802,
+          11,
+          689,
+          630,
+          286,
+          352,
+          30,
+          51322
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "Wait,",
+            "start": 43.66,
+            "end": 43.84,
+            "confidence": 1.0
+          },
+          {
+            "text": "where",
+            "start": 43.98,
+            "end": 44.22,
+            "confidence": 1.0
+          },
+          {
+            "text": "did",
+            "start": 44.22,
+            "end": 44.32,
+            "confidence": 1.0
+          },
+          {
+            "text": "I",
+            "start": 44.32,
+            "end": 44.48,
+            "confidence": 1.0
+          },
+          {
+            "text": "go?",
+            "start": 44.48,
+            "end": 44.72,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "seek": 2574,
+        "start": 45.8,
+        "end": 49.88,
+        "text": " Wow! Editor moved me to side like an unnecessary variable",
+        "tokens": [
+          51368,
+          3153,
+          0,
+          24281,
+          4259,
+          385,
+          281,
+          1252,
+          411,
+          364,
+          19350,
+          7006,
+          51583
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 0.96,
+        "words": [
+          {
+            "text": "Wow!",
+            "start": 45.8,
+            "end": 46.08,
+            "confidence": 0.999
+          },
+          {
+            "text": "Editor",
+            "start": 46.22,
+            "end": 47.36,
+            "confidence": 0.687
+          },
+          {
+            "text": "moved",
+            "start": 47.36,
+            "end": 47.74,
+            "confidence": 0.976
+          },
+          {
+            "text": "me",
+            "start": 47.74,
+            "end": 48.0,
+            "confidence": 1.0
+          },
+          {
+            "text": "to",
+            "start": 48.0,
+            "end": 48.12,
+            "confidence": 0.999
+          },
+          {
+            "text": "side",
+            "start": 48.12,
+            "end": 48.36,
+            "confidence": 0.998
+          },
+          {
+            "text": "like",
+            "start": 48.36,
+            "end": 48.58,
+            "confidence": 1.0
+          },
+          {
+            "text": "an",
+            "start": 48.58,
+            "end": 48.72,
+            "confidence": 1.0
+          },
+          {
+            "text": "unnecessary",
+            "start": 48.72,
+            "end": 49.12,
+            "confidence": 0.999
+          },
+          {
+            "text": "variable",
+            "start": 49.12,
+            "end": 49.88,
+            "confidence": 0.998
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "seek": 2574,
+        "start": 51.1,
+        "end": 54.4,
+        "text": " Dude! A potato? Really?",
+        "tokens": [
+          51583,
+          12042,
+          0,
+          316,
+          7445,
+          30,
+          4083,
+          30,
+          51803
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.1922618548075358,
+        "compression_ratio": 1.4672489082969433,
+        "no_speech_prob": 0.0012065425980836153,
+        "confidence": 0.89,
+        "words": [
+          {
+            "text": "Dude!",
+            "start": 51.1,
+            "end": 51.24,
+            "confidence": 0.99
+          },
+          {
+            "text": "A",
+            "start": 51.5,
+            "end": 52.52,
+            "confidence": 0.922
+          },
+          {
+            "text": "potato?",
+            "start": 52.52,
+            "end": 52.9,
+            "confidence": 0.989
+          },
+          {
+            "text": "Really?",
+            "start": 53.14,
+            "end": 54.4,
+            "confidence": 0.693
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "seek": 5450,
+        "start": 54.5,
+        "end": 57.48,
+        "text": " this is why editors should not have freedom",
+        "tokens": [
+          50365,
+          341,
+          307,
+          983,
+          31446,
+          820,
+          406,
+          362,
+          5645,
+          50524
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.836,
+        "words": [
+          {
+            "text": "this",
+            "start": 54.5,
+            "end": 55.62,
+            "confidence": 0.327
+          },
+          {
+            "text": "is",
+            "start": 55.62,
+            "end": 55.82,
+            "confidence": 0.997
+          },
+          {
+            "text": "why",
+            "start": 55.82,
+            "end": 56.06,
+            "confidence": 0.982
+          },
+          {
+            "text": "editors",
+            "start": 56.06,
+            "end": 56.36,
+            "confidence": 0.906
+          },
+          {
+            "text": "should",
+            "start": 56.36,
+            "end": 56.72,
+            "confidence": 0.942
+          },
+          {
+            "text": "not",
+            "start": 56.72,
+            "end": 56.92,
+            "confidence": 0.97
+          },
+          {
+            "text": "have",
+            "start": 56.92,
+            "end": 57.2,
+            "confidence": 0.957
+          },
+          {
+            "text": "freedom",
+            "start": 57.2,
+            "end": 57.48,
+            "confidence": 0.942
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "seek": 5450,
+        "start": 58.58,
+        "end": 59.46,
+        "text": " you know what hurts",
+        "tokens": [
+          50524,
+          291,
+          458,
+          437,
+          11051,
+          50622
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.996,
+        "words": [
+          {
+            "text": "you",
+            "start": 58.58,
+            "end": 58.72,
+            "confidence": 0.986
+          },
+          {
+            "text": "know",
+            "start": 58.72,
+            "end": 58.96,
+            "confidence": 1.0
+          },
+          {
+            "text": "what",
+            "start": 58.96,
+            "end": 59.14,
+            "confidence": 0.999
+          },
+          {
+            "text": "hurts",
+            "start": 59.14,
+            "end": 59.46,
+            "confidence": 0.998
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "seek": 5450,
+        "start": 60.34,
+        "end": 62.52,
+        "text": " the potato got more screen time than me",
+        "tokens": [
+          50622,
+          264,
+          7445,
+          658,
+          544,
+          2568,
+          565,
+          813,
+          385,
+          50778
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.946,
+        "words": [
+          {
+            "text": "the",
+            "start": 60.34,
+            "end": 60.68,
+            "confidence": 0.999
+          },
+          {
+            "text": "potato",
+            "start": 60.68,
+            "end": 61.04,
+            "confidence": 1.0
+          },
+          {
+            "text": "got",
+            "start": 61.04,
+            "end": 61.32,
+            "confidence": 0.979
+          },
+          {
+            "text": "more",
+            "start": 61.32,
+            "end": 61.56,
+            "confidence": 0.981
+          },
+          {
+            "text": "screen",
+            "start": 61.56,
+            "end": 61.8,
+            "confidence": 0.823
+          },
+          {
+            "text": "time",
+            "start": 61.8,
+            "end": 62.12,
+            "confidence": 0.965
+          },
+          {
+            "text": "than",
+            "start": 62.12,
+            "end": 62.34,
+            "confidence": 0.842
+          },
+          {
+            "text": "me",
+            "start": 62.34,
+            "end": 62.52,
+            "confidence": 0.997
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "seek": 5450,
+        "start": 63.66,
+        "end": 64.2,
+        "text": " that's it",
+        "tokens": [
+          50778,
+          300,
+          311,
+          309,
+          50859
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.999,
+        "words": [
+          {
+            "text": "that's",
+            "start": 63.66,
+            "end": 64.04,
+            "confidence": 0.998
+          },
+          {
+            "text": "it",
+            "start": 64.04,
+            "end": 64.2,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "seek": 5450,
+        "start": 65.04,
+        "end": 67.8,
+        "text": " editor stop adding sound effects every time I blink",
+        "tokens": [
+          50859,
+          9839,
+          1590,
+          5127,
+          1626,
+          5065,
+          633,
+          565,
+          286,
+          24667,
+          51039
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.881,
+        "words": [
+          {
+            "text": "editor",
+            "start": 65.04,
+            "end": 65.38,
+            "confidence": 0.999
+          },
+          {
+            "text": "stop",
+            "start": 65.38,
+            "end": 65.9,
+            "confidence": 0.495
+          },
+          {
+            "text": "adding",
+            "start": 65.9,
+            "end": 66.22,
+            "confidence": 0.991
+          },
+          {
+            "text": "sound",
+            "start": 66.22,
+            "end": 66.52,
+            "confidence": 0.991
+          },
+          {
+            "text": "effects",
+            "start": 66.52,
+            "end": 66.86,
+            "confidence": 0.998
+          },
+          {
+            "text": "every",
+            "start": 66.86,
+            "end": 67.16,
+            "confidence": 0.825
+          },
+          {
+            "text": "time",
+            "start": 67.16,
+            "end": 67.42,
+            "confidence": 1.0
+          },
+          {
+            "text": "I",
+            "start": 67.42,
+            "end": 67.58,
+            "confidence": 0.816
+          },
+          {
+            "text": "blink",
+            "start": 67.58,
+            "end": 67.8,
+            "confidence": 0.978
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "seek": 5450,
+        "start": 68.9,
+        "end": 70.32,
+        "text": " I don't need a whoosh for existing",
+        "tokens": [
+          51039,
+          286,
+          500,
+          380,
+          643,
+          257,
+          567,
+          3019,
+          337,
+          6741,
+          51170
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.987,
+        "words": [
+          {
+            "text": "I",
+            "start": 68.9,
+            "end": 69.04,
+            "confidence": 1.0
+          },
+          {
+            "text": "don't",
+            "start": 69.04,
+            "end": 69.36,
+            "confidence": 1.0
+          },
+          {
+            "text": "need",
+            "start": 69.36,
+            "end": 69.46,
+            "confidence": 0.978
+          },
+          {
+            "text": "a",
+            "start": 69.46,
+            "end": 69.56,
+            "confidence": 0.999
+          },
+          {
+            "text": "whoosh",
+            "start": 69.56,
+            "end": 69.88,
+            "confidence": 0.957
+          },
+          {
+            "text": "for",
+            "start": 69.88,
+            "end": 69.96,
+            "confidence": 0.999
+          },
+          {
+            "text": "existing",
+            "start": 69.96,
+            "end": 70.32,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "seek": 5450,
+        "start": 71.56,
+        "end": 72.68,
+        "text": " okay deep breaths",
+        "tokens": [
+          51170,
+          1392,
+          2452,
+          33769,
+          51284
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.823,
+        "words": [
+          {
+            "text": "okay",
+            "start": 71.56,
+            "end": 71.82,
+            "confidence": 0.61
+          },
+          {
+            "text": "deep",
+            "start": 71.82,
+            "end": 72.26,
+            "confidence": 0.916
+          },
+          {
+            "text": "breaths",
+            "start": 72.26,
+            "end": 72.68,
+            "confidence": 0.997
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "seek": 5450,
+        "start": 73.8,
+        "end": 75.76,
+        "text": " maybe the audience still respects me",
+        "tokens": [
+          51284,
+          1310,
+          264,
+          4034,
+          920,
+          24126,
+          385,
+          51437
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.999,
+        "words": [
+          {
+            "text": "maybe",
+            "start": 73.8,
+            "end": 74.08,
+            "confidence": 1.0
+          },
+          {
+            "text": "the",
+            "start": 74.08,
+            "end": 74.26,
+            "confidence": 1.0
+          },
+          {
+            "text": "audience",
+            "start": 74.26,
+            "end": 74.64,
+            "confidence": 1.0
+          },
+          {
+            "text": "still",
+            "start": 74.64,
+            "end": 75.0,
+            "confidence": 0.998
+          },
+          {
+            "text": "respects",
+            "start": 75.0,
+            "end": 75.34,
+            "confidence": 0.999
+          },
+          {
+            "text": "me",
+            "start": 75.34,
+            "end": 75.76,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "seek": 5450,
+        "start": 76.86,
+        "end": 77.02,
+        "text": " no",
+        "tokens": [
+          51437,
+          572,
+          51501
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 1.0,
+        "words": [
+          {
+            "text": "no",
+            "start": 76.86,
+            "end": 77.02,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "seek": 5450,
+        "start": 78.18,
+        "end": 79.74,
+        "text": " but okay cool cool cool",
+        "tokens": [
+          51501,
+          457,
+          1392,
+          1627,
+          1627,
+          1627,
+          51642
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.989,
+        "words": [
+          {
+            "text": "but",
+            "start": 78.18,
+            "end": 78.24,
+            "confidence": 0.999
+          },
+          {
+            "text": "okay",
+            "start": 78.24,
+            "end": 78.62,
+            "confidence": 1.0
+          },
+          {
+            "text": "cool",
+            "start": 78.62,
+            "end": 79.2,
+            "confidence": 0.951
+          },
+          {
+            "text": "cool",
+            "start": 79.2,
+            "end": 79.48,
+            "confidence": 0.999
+          },
+          {
+            "text": "cool",
+            "start": 79.48,
+            "end": 79.74,
+            "confidence": 1.0
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "seek": 5450,
+        "start": 80.94,
+        "end": 83.44,
+        "text": " and that dear viewers is the power of editing",
+        "tokens": [
+          51642,
+          293,
+          300,
+          6875,
+          8499,
+          307,
+          264,
+          1347,
+          295,
+          10000,
+          51820
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.18734715493877283,
+        "compression_ratio": 1.607843137254902,
+        "no_speech_prob": 0.000666679407004267,
+        "confidence": 0.991,
+        "words": [
+          {
+            "text": "and",
+            "start": 80.94,
+            "end": 81.06,
+            "confidence": 0.997
+          },
+          {
+            "text": "that",
+            "start": 81.06,
+            "end": 81.36,
+            "confidence": 1.0
+          },
+          {
+            "text": "dear",
+            "start": 81.36,
+            "end": 81.64,
+            "confidence": 0.994
+          },
+          {
+            "text": "viewers",
+            "start": 81.64,
+            "end": 82.08,
+            "confidence": 0.999
+          },
+          {
+            "text": "is",
+            "start": 82.08,
+            "end": 82.5,
+            "confidence": 0.932
+          },
+          {
+            "text": "the",
+            "start": 82.5,
+            "end": 82.64,
+            "confidence": 1.0
+          },
+          {
+            "text": "power",
+            "start": 82.64,
+            "end": 82.98,
+            "confidence": 0.999
+          },
+          {
+            "text": "of",
+            "start": 82.98,
+            "end": 83.16,
+            "confidence": 0.999
+          },
+          {
+            "text": "editing",
+            "start": 83.16,
+            "end": 83.44,
+            "confidence": 0.999
+          }
+        ]
+      },
+      {
+        "id": 26,
+        "seek": 8360,
+        "start": 83.6,
+        "end": 85.94,
+        "text": " emotions done",
+        "tokens": [
+          50365,
+          8462,
+          1096,
+          50517
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.2187034761583483,
+        "compression_ratio": 1.3263157894736841,
+        "no_speech_prob": 0.0022167006973177195,
+        "confidence": 0.686,
+        "words": [
+          {
+            "text": "emotions",
+            "start": 83.6,
+            "end": 84.92,
+            "confidence": 0.605
+          },
+          {
+            "text": "done",
+            "start": 84.92,
+            "end": 85.94,
+            "confidence": 0.777
+          }
+        ]
+      },
+      {
+        "id": 27,
+        "seek": 8360,
+        "start": 87.6,
+        "end": 88.94,
+        "text": " postures done",
+        "tokens": [
+          50517,
+          2183,
+          1303,
+          1096,
+          50664
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.2187034761583483,
+        "compression_ratio": 1.3263157894736841,
+        "no_speech_prob": 0.0022167006973177195,
+        "confidence": 0.956,
+        "words": [
+          {
+            "text": "postures",
+            "start": 87.6,
+            "end": 88.08,
+            "confidence": 0.998
+          },
+          {
+            "text": "done",
+            "start": 88.08,
+            "end": 88.94,
+            "confidence": 0.877
+          }
+        ]
+      },
+      {
+        "id": 28,
+        "seek": 8360,
+        "start": 90.5,
+        "end": 91.9,
+        "text": " random potato cameo",
+        "tokens": [
+          50664,
+          4974,
+          7445,
+          1361,
+          78,
+          50786
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.2187034761583483,
+        "compression_ratio": 1.3263157894736841,
+        "no_speech_prob": 0.0022167006973177195,
+        "confidence": 0.995,
+        "words": [
+          {
+            "text": "random",
+            "start": 90.5,
+            "end": 90.82,
+            "confidence": 0.995
+          },
+          {
+            "text": "potato",
+            "start": 90.82,
+            "end": 91.28,
+            "confidence": 0.994
+          },
+          {
+            "text": "cameo",
+            "start": 91.28,
+            "end": 91.9,
+            "confidence": 0.995
+          }
+        ]
+      },
+      {
+        "id": 29,
+        "seek": 8360,
+        "start": 92.96,
+        "end": 93.8,
+        "text": " extremely done",
+        "tokens": [
+          50786,
+          4664,
+          1096,
+          50886
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.2187034761583483,
+        "compression_ratio": 1.3263157894736841,
+        "no_speech_prob": 0.0022167006973177195,
+        "confidence": 0.999,
+        "words": [
+          {
+            "text": "extremely",
+            "start": 92.96,
+            "end": 93.4,
+            "confidence": 0.999
+          },
+          {
+            "text": "done",
+            "start": 93.4,
+            "end": 93.8,
+            "confidence": 0.999
+          }
+        ]
+      },
+      {
+        "id": 30,
+        "seek": 8360,
+        "start": 94.92,
+        "end": 96.54,
+        "text": " if you still didn't hire this editor",
+        "tokens": [
+          50886,
+          498,
+          291,
+          920,
+          994,
+          380,
+          11158,
+          341,
+          9839,
+          51017
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.2187034761583483,
+        "compression_ratio": 1.3263157894736841,
+        "no_speech_prob": 0.0022167006973177195,
+        "confidence": 0.965,
+        "words": [
+          {
+            "text": "if",
+            "start": 94.92,
+            "end": 95.02,
+            "confidence": 0.849
+          },
+          {
+            "text": "you",
+            "start": 95.02,
+            "end": 95.18,
+            "confidence": 1.0
+          },
+          {
+            "text": "still",
+            "start": 95.18,
+            "end": 95.44,
+            "confidence": 1.0
+          },
+          {
+            "text": "didn't",
+            "start": 95.44,
+            "end": 95.82,
+            "confidence": 0.993
+          },
+          {
+            "text": "hire",
+            "start": 95.82,
+            "end": 96.02,
+            "confidence": 0.978
+          },
+          {
+            "text": "this",
+            "start": 96.02,
+            "end": 96.26,
+            "confidence": 0.96
+          },
+          {
+            "text": "editor",
+            "start": 96.26,
+            "end": 96.54,
+            "confidence": 0.959
+          }
+        ]
+      },
+      {
+        "id": 31,
+        "seek": 8360,
+        "start": 96.58,
+        "end": 97.86,
+        "text": " you're probably the potato",
+        "tokens": [
+          51017,
+          291,
+          434,
+          1391,
+          264,
+          7445,
+          51087
+        ],
+        "temperature": 0.0,
+        "avg_logprob": -0.2187034761583483,
+        "compression_ratio": 1.3263157894736841,
+        "no_speech_prob": 0.0022167006973177195,
+        "confidence": 0.994,
+        "words": [
+          {
+            "text": "you're",
+            "start": 96.58,
+            "end": 97.0,
+            "confidence": 0.987
+          },
+          {
+            "text": "probably",
+            "start": 97.0,
+            "end": 97.32,
+            "confidence": 1.0
+          },
+          {
+            "text": "the",
+            "start": 97.32,
+            "end": 97.56,
+            "confidence": 0.999
+          },
+          {
+            "text": "potato",
+            "start": 97.56,
+            "end": 97.86,
+            "confidence": 0.999
+          }
+        ]
+      }
+    ],
+    "language": "hi",
+    "speech_activity": [
+      {
+        "start": 0.0,
+        "end": 99.168
+      }
+    ]
+  },
+  "word_timestamps": [
+    {
+      "Word": "Hey",
+      "Start Time (s)": 0.0,
+      "End Time (s)": 0.3,
+      "Confidence": 0.635
+    },
+    {
+      "Word": "there,",
+      "Start Time (s)": 0.3,
+      "End Time (s)": 0.62,
+      "Confidence": 0.992
+    },
+    {
+      "Word": "wonderful",
+      "Start Time (s)": 0.68,
+      "End Time (s)": 1.16,
+      "Confidence": 0.994
+    },
+    {
+      "Word": "humans.",
+      "Start Time (s)": 1.16,
+      "End Time (s)": 1.62,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "Today",
+      "Start Time (s)": 2.86,
+      "End Time (s)": 3.02,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "I'm",
+      "Start Time (s)": 3.02,
+      "End Time (s)": 3.36,
+      "Confidence": 0.989
+    },
+    {
+      "Word": "here",
+      "Start Time (s)": 3.36,
+      "End Time (s)": 3.48,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "to",
+      "Start Time (s)": 3.48,
+      "End Time (s)": 3.64,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "prove",
+      "Start Time (s)": 3.64,
+      "End Time (s)": 3.82,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "I'm",
+      "Start Time (s)": 3.82,
+      "End Time (s)": 4.12,
+      "Confidence": 0.981
+    },
+    {
+      "Word": "absolutely",
+      "Start Time (s)": 4.12,
+      "End Time (s)": 4.44,
+      "Confidence": 0.987
+    },
+    {
+      "Word": "not",
+      "Start Time (s)": 4.44,
+      "End Time (s)": 4.78,
+      "Confidence": 0.995
+    },
+    {
+      "Word": "a",
+      "Start Time (s)": 4.78,
+      "End Time (s)": 4.96,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "badly",
+      "Start Time (s)": 4.96,
+      "End Time (s)": 5.3,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "animated",
+      "Start Time (s)": 5.3,
+      "End Time (s)": 5.66,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "PNG",
+      "Start Time (s)": 5.66,
+      "End Time (s)": 6.26,
+      "Confidence": 0.976
+    },
+    {
+      "Word": "pretending",
+      "Start Time (s)": 6.26,
+      "End Time (s)": 6.68,
+      "Confidence": 0.968
+    },
+    {
+      "Word": "to",
+      "Start Time (s)": 6.68,
+      "End Time (s)": 6.94,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "have",
+      "Start Time (s)": 6.94,
+      "End Time (s)": 7.12,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "feelings.",
+      "Start Time (s)": 7.12,
+      "End Time (s)": 7.4,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Actually,",
+      "Start Time (s)": 8.62,
+      "End Time (s)": 8.9,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "this",
+      "Start Time (s)": 9.12,
+      "End Time (s)": 9.44,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "script",
+      "Start Time (s)": 9.44,
+      "End Time (s)": 9.74,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "has",
+      "Start Time (s)": 9.74,
+      "End Time (s)": 9.96,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "8",
+      "Start Time (s)": 9.96,
+      "End Time (s)": 10.16,
+      "Confidence": 0.945
+    },
+    {
+      "Word": "emotions,",
+      "Start Time (s)": 10.16,
+      "End Time (s)": 10.56,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "12",
+      "Start Time (s)": 10.72,
+      "End Time (s)": 11.14,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "postures,",
+      "Start Time (s)": 11.14,
+      "End Time (s)": 11.68,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "4",
+      "Start Time (s)": 11.78,
+      "End Time (s)": 12.02,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "modes,",
+      "Start Time (s)": 12.02,
+      "End Time (s)": 12.3,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "and",
+      "Start Time (s)": 12.42,
+      "End Time (s)": 12.66,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "I",
+      "Start Time (s)": 12.66,
+      "End Time (s)": 12.76,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "agreed",
+      "Start Time (s)": 12.76,
+      "End Time (s)": 12.94,
+      "Confidence": 0.928
+    },
+    {
+      "Word": "to",
+      "Start Time (s)": 12.94,
+      "End Time (s)": 13.14,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "all",
+      "Start Time (s)": 13.14,
+      "End Time (s)": 13.28,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "of",
+      "Start Time (s)": 13.28,
+      "End Time (s)": 13.42,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "this.",
+      "Start Time (s)": 13.42,
+      "End Time (s)": 13.62,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Why",
+      "Start Time (s)": 14.68,
+      "End Time (s)": 14.82,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "do",
+      "Start Time (s)": 14.82,
+      "End Time (s)": 14.96,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "I",
+      "Start Time (s)": 14.96,
+      "End Time (s)": 15.12,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "do",
+      "Start Time (s)": 15.12,
+      "End Time (s)": 15.26,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "this",
+      "Start Time (s)": 15.26,
+      "End Time (s)": 15.46,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "to",
+      "Start Time (s)": 15.46,
+      "End Time (s)": 15.6,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "myself?",
+      "Start Time (s)": 15.6,
+      "End Time (s)": 15.88,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "So",
+      "Start Time (s)": 17.22,
+      "End Time (s)": 17.36,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "this",
+      "Start Time (s)": 17.36,
+      "End Time (s)": 17.52,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "is",
+      "Start Time (s)": 17.52,
+      "End Time (s)": 17.76,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "me,",
+      "Start Time (s)": 17.76,
+      "End Time (s)": 17.98,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "being",
+      "Start Time (s)": 18.06,
+      "End Time (s)": 18.48,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "totally",
+      "Start Time (s)": 18.48,
+      "End Time (s)": 18.86,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "calm.",
+      "Start Time (s)": 18.86,
+      "End Time (s)": 19.22,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Look",
+      "Start Time (s)": 20.3,
+      "End Time (s)": 20.5,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "at",
+      "Start Time (s)": 20.5,
+      "End Time (s)": 20.7,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "this",
+      "Start Time (s)": 20.7,
+      "End Time (s)": 20.88,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "calmness.",
+      "Start Time (s)": 20.88,
+      "End Time (s)": 21.4,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Doctors",
+      "Start Time (s)": 22.52,
+      "End Time (s)": 22.84,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "hate",
+      "Start Time (s)": 22.84,
+      "End Time (s)": 23.2,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "it.",
+      "Start Time (s)": 23.2,
+      "End Time (s)": 23.44,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Behold,",
+      "Start Time (s)": 24.18,
+      "End Time (s)": 24.84,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "boredom.",
+      "Start Time (s)": 24.98,
+      "End Time (s)": 25.62,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "This",
+      "Start Time (s)": 25.74,
+      "End Time (s)": 26.74,
+      "Confidence": 0.681
+    },
+    {
+      "Word": "is",
+      "Start Time (s)": 26.74,
+      "End Time (s)": 26.92,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "my",
+      "Start Time (s)": 26.92,
+      "End Time (s)": 27.12,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "default",
+      "Start Time (s)": 27.12,
+      "End Time (s)": 27.44,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "mode",
+      "Start Time (s)": 27.44,
+      "End Time (s)": 27.82,
+      "Confidence": 0.996
+    },
+    {
+      "Word": "during",
+      "Start Time (s)": 27.82,
+      "End Time (s)": 28.04,
+      "Confidence": 0.964
+    },
+    {
+      "Word": "long",
+      "Start Time (s)": 28.04,
+      "End Time (s)": 28.36,
+      "Confidence": 0.996
+    },
+    {
+      "Word": "meetings",
+      "Start Time (s)": 28.36,
+      "End Time (s)": 28.64,
+      "Confidence": 0.995
+    },
+    {
+      "Word": "and",
+      "Start Time (s)": 28.64,
+      "End Time (s)": 28.9,
+      "Confidence": 0.978
+    },
+    {
+      "Word": "lectures",
+      "Start Time (s)": 28.9,
+      "End Time (s)": 29.24,
+      "Confidence": 0.996
+    },
+    {
+      "Word": "starting",
+      "Start Time (s)": 29.24,
+      "End Time (s)": 29.64,
+      "Confidence": 0.856
+    },
+    {
+      "Word": "with",
+      "Start Time (s)": 29.64,
+      "End Time (s)": 29.9,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "according",
+      "Start Time (s)": 29.9,
+      "End Time (s)": 30.16,
+      "Confidence": 0.817
+    },
+    {
+      "Word": "to",
+      "Start Time (s)": 30.16,
+      "End Time (s)": 30.5,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "the",
+      "Start Time (s)": 30.5,
+      "End Time (s)": 30.64,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "syllabus",
+      "Start Time (s)": 30.64,
+      "End Time (s)": 30.92,
+      "Confidence": 0.995
+    },
+    {
+      "Word": "Whoa!",
+      "Start Time (s)": 32.16,
+      "End Time (s)": 32.4,
+      "Confidence": 0.537
+    },
+    {
+      "Word": "Something",
+      "Start Time (s)": 32.56,
+      "End Time (s)": 33.84,
+      "Confidence": 0.726
+    },
+    {
+      "Word": "actually",
+      "Start Time (s)": 33.84,
+      "End Time (s)": 34.36,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "interesting",
+      "Start Time (s)": 34.36,
+      "End Time (s)": 34.82,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Oh",
+      "Start Time (s)": 36.06,
+      "End Time (s)": 36.14,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "yes,",
+      "Start Time (s)": 36.14,
+      "End Time (s)": 36.46,
+      "Confidence": 0.996
+    },
+    {
+      "Word": "because",
+      "Start Time (s)": 36.6,
+      "End Time (s)": 37.0,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "obviously",
+      "Start Time (s)": 37.0,
+      "End Time (s)": 37.38,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "the",
+      "Start Time (s)": 37.38,
+      "End Time (s)": 37.72,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "world",
+      "Start Time (s)": 37.72,
+      "End Time (s)": 38.04,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "was",
+      "Start Time (s)": 38.04,
+      "End Time (s)": 38.24,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "waiting",
+      "Start Time (s)": 38.24,
+      "End Time (s)": 38.52,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "for",
+      "Start Time (s)": 38.52,
+      "End Time (s)": 38.76,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "another",
+      "Start Time (s)": 38.76,
+      "End Time (s)": 39.02,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "creatively",
+      "Start Time (s)": 39.02,
+      "End Time (s)": 39.52,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "edited",
+      "Start Time (s)": 39.52,
+      "End Time (s)": 40.02,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "video",
+      "Start Time (s)": 40.02,
+      "End Time (s)": 40.43,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Revolutionary",
+      "Start Time (s)": 40.43,
+      "End Time (s)": 42.54,
+      "Confidence": 0.994
+    },
+    {
+      "Word": "Wait,",
+      "Start Time (s)": 43.66,
+      "End Time (s)": 43.84,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "where",
+      "Start Time (s)": 43.98,
+      "End Time (s)": 44.22,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "did",
+      "Start Time (s)": 44.22,
+      "End Time (s)": 44.32,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "I",
+      "Start Time (s)": 44.32,
+      "End Time (s)": 44.48,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "go?",
+      "Start Time (s)": 44.48,
+      "End Time (s)": 44.72,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "Wow!",
+      "Start Time (s)": 45.8,
+      "End Time (s)": 46.08,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "Editor",
+      "Start Time (s)": 46.22,
+      "End Time (s)": 47.36,
+      "Confidence": 0.687
+    },
+    {
+      "Word": "moved",
+      "Start Time (s)": 47.36,
+      "End Time (s)": 47.74,
+      "Confidence": 0.976
+    },
+    {
+      "Word": "me",
+      "Start Time (s)": 47.74,
+      "End Time (s)": 48.0,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "to",
+      "Start Time (s)": 48.0,
+      "End Time (s)": 48.12,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "side",
+      "Start Time (s)": 48.12,
+      "End Time (s)": 48.36,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "like",
+      "Start Time (s)": 48.36,
+      "End Time (s)": 48.58,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "an",
+      "Start Time (s)": 48.58,
+      "End Time (s)": 48.72,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "unnecessary",
+      "Start Time (s)": 48.72,
+      "End Time (s)": 49.12,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "variable",
+      "Start Time (s)": 49.12,
+      "End Time (s)": 49.88,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "Dude!",
+      "Start Time (s)": 51.1,
+      "End Time (s)": 51.24,
+      "Confidence": 0.99
+    },
+    {
+      "Word": "A",
+      "Start Time (s)": 51.5,
+      "End Time (s)": 52.52,
+      "Confidence": 0.922
+    },
+    {
+      "Word": "potato?",
+      "Start Time (s)": 52.52,
+      "End Time (s)": 52.9,
+      "Confidence": 0.989
+    },
+    {
+      "Word": "Really?",
+      "Start Time (s)": 53.14,
+      "End Time (s)": 54.4,
+      "Confidence": 0.693
+    },
+    {
+      "Word": "this",
+      "Start Time (s)": 54.5,
+      "End Time (s)": 55.62,
+      "Confidence": 0.327
+    },
+    {
+      "Word": "is",
+      "Start Time (s)": 55.62,
+      "End Time (s)": 55.82,
+      "Confidence": 0.997
+    },
+    {
+      "Word": "why",
+      "Start Time (s)": 55.82,
+      "End Time (s)": 56.06,
+      "Confidence": 0.982
+    },
+    {
+      "Word": "editors",
+      "Start Time (s)": 56.06,
+      "End Time (s)": 56.36,
+      "Confidence": 0.906
+    },
+    {
+      "Word": "should",
+      "Start Time (s)": 56.36,
+      "End Time (s)": 56.72,
+      "Confidence": 0.942
+    },
+    {
+      "Word": "not",
+      "Start Time (s)": 56.72,
+      "End Time (s)": 56.92,
+      "Confidence": 0.97
+    },
+    {
+      "Word": "have",
+      "Start Time (s)": 56.92,
+      "End Time (s)": 57.2,
+      "Confidence": 0.957
+    },
+    {
+      "Word": "freedom",
+      "Start Time (s)": 57.2,
+      "End Time (s)": 57.48,
+      "Confidence": 0.942
+    },
+    {
+      "Word": "you",
+      "Start Time (s)": 58.58,
+      "End Time (s)": 58.72,
+      "Confidence": 0.986
+    },
+    {
+      "Word": "know",
+      "Start Time (s)": 58.72,
+      "End Time (s)": 58.96,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "what",
+      "Start Time (s)": 58.96,
+      "End Time (s)": 59.14,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "hurts",
+      "Start Time (s)": 59.14,
+      "End Time (s)": 59.46,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "the",
+      "Start Time (s)": 60.34,
+      "End Time (s)": 60.68,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "potato",
+      "Start Time (s)": 60.68,
+      "End Time (s)": 61.04,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "got",
+      "Start Time (s)": 61.04,
+      "End Time (s)": 61.32,
+      "Confidence": 0.979
+    },
+    {
+      "Word": "more",
+      "Start Time (s)": 61.32,
+      "End Time (s)": 61.56,
+      "Confidence": 0.981
+    },
+    {
+      "Word": "screen",
+      "Start Time (s)": 61.56,
+      "End Time (s)": 61.8,
+      "Confidence": 0.823
+    },
+    {
+      "Word": "time",
+      "Start Time (s)": 61.8,
+      "End Time (s)": 62.12,
+      "Confidence": 0.965
+    },
+    {
+      "Word": "than",
+      "Start Time (s)": 62.12,
+      "End Time (s)": 62.34,
+      "Confidence": 0.842
+    },
+    {
+      "Word": "me",
+      "Start Time (s)": 62.34,
+      "End Time (s)": 62.52,
+      "Confidence": 0.997
+    },
+    {
+      "Word": "that's",
+      "Start Time (s)": 63.66,
+      "End Time (s)": 64.04,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "it",
+      "Start Time (s)": 64.04,
+      "End Time (s)": 64.2,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "editor",
+      "Start Time (s)": 65.04,
+      "End Time (s)": 65.38,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "stop",
+      "Start Time (s)": 65.38,
+      "End Time (s)": 65.9,
+      "Confidence": 0.495
+    },
+    {
+      "Word": "adding",
+      "Start Time (s)": 65.9,
+      "End Time (s)": 66.22,
+      "Confidence": 0.991
+    },
+    {
+      "Word": "sound",
+      "Start Time (s)": 66.22,
+      "End Time (s)": 66.52,
+      "Confidence": 0.991
+    },
+    {
+      "Word": "effects",
+      "Start Time (s)": 66.52,
+      "End Time (s)": 66.86,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "every",
+      "Start Time (s)": 66.86,
+      "End Time (s)": 67.16,
+      "Confidence": 0.825
+    },
+    {
+      "Word": "time",
+      "Start Time (s)": 67.16,
+      "End Time (s)": 67.42,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "I",
+      "Start Time (s)": 67.42,
+      "End Time (s)": 67.58,
+      "Confidence": 0.816
+    },
+    {
+      "Word": "blink",
+      "Start Time (s)": 67.58,
+      "End Time (s)": 67.8,
+      "Confidence": 0.978
+    },
+    {
+      "Word": "I",
+      "Start Time (s)": 68.9,
+      "End Time (s)": 69.04,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "don't",
+      "Start Time (s)": 69.04,
+      "End Time (s)": 69.36,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "need",
+      "Start Time (s)": 69.36,
+      "End Time (s)": 69.46,
+      "Confidence": 0.978
+    },
+    {
+      "Word": "a",
+      "Start Time (s)": 69.46,
+      "End Time (s)": 69.56,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "whoosh",
+      "Start Time (s)": 69.56,
+      "End Time (s)": 69.88,
+      "Confidence": 0.957
+    },
+    {
+      "Word": "for",
+      "Start Time (s)": 69.88,
+      "End Time (s)": 69.96,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "existing",
+      "Start Time (s)": 69.96,
+      "End Time (s)": 70.32,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "okay",
+      "Start Time (s)": 71.56,
+      "End Time (s)": 71.82,
+      "Confidence": 0.61
+    },
+    {
+      "Word": "deep",
+      "Start Time (s)": 71.82,
+      "End Time (s)": 72.26,
+      "Confidence": 0.916
+    },
+    {
+      "Word": "breaths",
+      "Start Time (s)": 72.26,
+      "End Time (s)": 72.68,
+      "Confidence": 0.997
+    },
+    {
+      "Word": "maybe",
+      "Start Time (s)": 73.8,
+      "End Time (s)": 74.08,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "the",
+      "Start Time (s)": 74.08,
+      "End Time (s)": 74.26,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "audience",
+      "Start Time (s)": 74.26,
+      "End Time (s)": 74.64,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "still",
+      "Start Time (s)": 74.64,
+      "End Time (s)": 75.0,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "respects",
+      "Start Time (s)": 75.0,
+      "End Time (s)": 75.34,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "me",
+      "Start Time (s)": 75.34,
+      "End Time (s)": 75.76,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "no",
+      "Start Time (s)": 76.86,
+      "End Time (s)": 77.02,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "but",
+      "Start Time (s)": 78.18,
+      "End Time (s)": 78.24,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "okay",
+      "Start Time (s)": 78.24,
+      "End Time (s)": 78.62,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "cool",
+      "Start Time (s)": 78.62,
+      "End Time (s)": 79.2,
+      "Confidence": 0.951
+    },
+    {
+      "Word": "cool",
+      "Start Time (s)": 79.2,
+      "End Time (s)": 79.48,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "cool",
+      "Start Time (s)": 79.48,
+      "End Time (s)": 79.74,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "and",
+      "Start Time (s)": 80.94,
+      "End Time (s)": 81.06,
+      "Confidence": 0.997
+    },
+    {
+      "Word": "that",
+      "Start Time (s)": 81.06,
+      "End Time (s)": 81.36,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "dear",
+      "Start Time (s)": 81.36,
+      "End Time (s)": 81.64,
+      "Confidence": 0.994
+    },
+    {
+      "Word": "viewers",
+      "Start Time (s)": 81.64,
+      "End Time (s)": 82.08,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "is",
+      "Start Time (s)": 82.08,
+      "End Time (s)": 82.5,
+      "Confidence": 0.932
+    },
+    {
+      "Word": "the",
+      "Start Time (s)": 82.5,
+      "End Time (s)": 82.64,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "power",
+      "Start Time (s)": 82.64,
+      "End Time (s)": 82.98,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "of",
+      "Start Time (s)": 82.98,
+      "End Time (s)": 83.16,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "editing",
+      "Start Time (s)": 83.16,
+      "End Time (s)": 83.44,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "emotions",
+      "Start Time (s)": 83.6,
+      "End Time (s)": 84.92,
+      "Confidence": 0.605
+    },
+    {
+      "Word": "done",
+      "Start Time (s)": 84.92,
+      "End Time (s)": 85.94,
+      "Confidence": 0.777
+    },
+    {
+      "Word": "postures",
+      "Start Time (s)": 87.6,
+      "End Time (s)": 88.08,
+      "Confidence": 0.998
+    },
+    {
+      "Word": "done",
+      "Start Time (s)": 88.08,
+      "End Time (s)": 88.94,
+      "Confidence": 0.877
+    },
+    {
+      "Word": "random",
+      "Start Time (s)": 90.5,
+      "End Time (s)": 90.82,
+      "Confidence": 0.995
+    },
+    {
+      "Word": "potato",
+      "Start Time (s)": 90.82,
+      "End Time (s)": 91.28,
+      "Confidence": 0.994
+    },
+    {
+      "Word": "cameo",
+      "Start Time (s)": 91.28,
+      "End Time (s)": 91.9,
+      "Confidence": 0.995
+    },
+    {
+      "Word": "extremely",
+      "Start Time (s)": 92.96,
+      "End Time (s)": 93.4,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "done",
+      "Start Time (s)": 93.4,
+      "End Time (s)": 93.8,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "if",
+      "Start Time (s)": 94.92,
+      "End Time (s)": 95.02,
+      "Confidence": 0.849
+    },
+    {
+      "Word": "you",
+      "Start Time (s)": 95.02,
+      "End Time (s)": 95.18,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "still",
+      "Start Time (s)": 95.18,
+      "End Time (s)": 95.44,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "didn't",
+      "Start Time (s)": 95.44,
+      "End Time (s)": 95.82,
+      "Confidence": 0.993
+    },
+    {
+      "Word": "hire",
+      "Start Time (s)": 95.82,
+      "End Time (s)": 96.02,
+      "Confidence": 0.978
+    },
+    {
+      "Word": "this",
+      "Start Time (s)": 96.02,
+      "End Time (s)": 96.26,
+      "Confidence": 0.96
+    },
+    {
+      "Word": "editor",
+      "Start Time (s)": 96.26,
+      "End Time (s)": 96.54,
+      "Confidence": 0.959
+    },
+    {
+      "Word": "you're",
+      "Start Time (s)": 96.58,
+      "End Time (s)": 97.0,
+      "Confidence": 0.987
+    },
+    {
+      "Word": "probably",
+      "Start Time (s)": 97.0,
+      "End Time (s)": 97.32,
+      "Confidence": 1.0
+    },
+    {
+      "Word": "the",
+      "Start Time (s)": 97.32,
+      "End Time (s)": 97.56,
+      "Confidence": 0.999
+    },
+    {
+      "Word": "potato",
+      "Start Time (s)": 97.56,
+      "End Time (s)": 97.86,
+      "Confidence": 0.999
+    }
+  ],
+  "sample_accurate_timestamps": null
+}

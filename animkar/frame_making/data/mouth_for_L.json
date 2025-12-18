@@ -1,0 +1,452 @@
+{
+    "a_e_h.png": {
+        "size": [
+            176,
+            77
+        ],
+        "location": [
+            316,
+            561
+        ]
+    },
+    "d_j_ch_h.png": {
+        "size": [
+            196,
+            49
+        ],
+        "location": [
+            306,
+            574
+        ]
+    },
+    "f_h.png": {
+        "size": [
+            168,
+            43
+        ],
+        "location": [
+            325,
+            574
+        ]
+    },
+    "l_h.png": {
+        "size": [
+            170,
+            65
+        ],
+        "location": [
+            325,
+            574
+        ]
+    },
+    "m_b_close_h.png": {
+        "size": [
+            189,
+            15
+        ],
+        "location": [
+            306,
+            587
+        ]
+    },
+    "o_big_h.png": {
+        "size": [
+            96,
+            73
+        ],
+        "location": [
+            374,
+            574
+        ]
+    },
+    "o_small_h.png": {
+        "size": [
+            50,
+            69
+        ],
+        "location": [
+            413,
+            574
+        ]
+    },
+    "oh_h.png": {
+        "size": [
+            74,
+            76
+        ],
+        "location": [
+            393,
+            561
+        ]
+    },
+    "th_h.png": {
+        "size": [
+            164,
+            68
+        ],
+        "location": [
+            345,
+            561
+        ]
+    },
+    "trans_h.png": {
+        "size": [
+            191,
+            78
+        ],
+        "location": [
+            335,
+            561
+        ]
+    },
+    "a_e_s.png": {
+        "size": [
+            162,
+            62
+        ],
+        "location": [
+            335,
+            561
+        ]
+    },
+    "d_j_ch_s.png": {
+        "size": [
+            178,
+            31
+        ],
+        "location": [
+            335,
+            574
+        ]
+    },
+    "f_s.png": {
+        "size": [
+            178,
+            35
+        ],
+        "location": [
+            335,
+            574
+        ]
+    },
+    "l_s.png": {
+        "size": [
+            138,
+            49
+        ],
+        "location": [
+            354,
+            574
+        ]
+    },
+    "m_b_close_s.png": {
+        "size": [
+            174,
+            19
+        ],
+        "location": [
+            325,
+            574
+        ]
+    },
+    "o_big_s.png": {
+        "size": [
+            68,
+            68
+        ],
+        "location": [
+            403,
+            574
+        ]
+    },
+    "o_small_s.png": {
+        "size": [
+            44,
+            59
+        ],
+        "location": [
+            422,
+            574
+        ]
+    },
+    "oh_s.png": {
+        "size": [
+            44,
+            59
+        ],
+        "location": [
+            422,
+            574
+        ]
+    },
+    "th_s.png": {
+        "size": [
+            143,
+            52
+        ],
+        "location": [
+            345,
+            574
+        ]
+    },
+    "angry.png": {
+        "size": [
+            167,
+            65
+        ],
+        "location": [
+            345,
+            574
+        ]
+    },
+    "angry_2.png": {
+        "size": [
+            154,
+            77
+        ],
+        "location": [
+            345,
+            574
+        ]
+    },
+    "bore.png": {
+        "size": [
+            156,
+            47
+        ],
+        "location": [
+            345,
+            574
+        ]
+    },
+    "bore_2.png": {
+        "size": [
+            120,
+            78
+        ],
+        "location": [
+            364,
+            561
+        ]
+    },
+    "content.png": {
+        "size": [
+            149,
+            49
+        ],
+        "location": [
+            345,
+            574
+        ]
+    },
+    "content_2.png": {
+        "size": [
+            175,
+            44
+        ],
+        "location": [
+            335,
+            574
+        ]
+    },
+    "crazy.png": {
+        "size": [
+            252,
+            180
+        ],
+        "location": [
+            277,
+            523
+        ]
+    },
+    "crazy_2.png": {
+        "size": [
+            252,
+            180
+        ],
+        "location": [
+            277,
+            523
+        ]
+    },
+    "evil_laugh.png": {
+        "size": [
+            214,
+            133
+        ],
+        "location": [
+            296,
+            523
+        ]
+    },
+    "evil_laugh_2.png": {
+        "size": [
+            214,
+            133
+        ],
+        "location": [
+            296,
+            523
+        ]
+    },
+    "glare.png": {
+        "size": [
+            103,
+            55
+        ],
+        "location": [
+            374,
+            574
+        ]
+    },
+    "glare_2.png": {
+        "size": [
+            76,
+            73
+        ],
+        "location": [
+            403,
+            574
+        ]
+    },
+    "happy.png": {
+        "size": [
+            158,
+            99
+        ],
+        "location": [
+            345,
+            561
+        ]
+    },
+    "happy_2.png": {
+        "size": [
+            159,
+            90
+        ],
+        "location": [
+            345,
+            561
+        ]
+    },
+    "lust.png": {
+        "size": [
+            208,
+            159
+        ],
+        "location": [
+            316,
+            536
+        ]
+    },
+    "lust_2.png": {
+        "size": [
+            208,
+            159
+        ],
+        "location": [
+            316,
+            536
+        ]
+    },
+    "sad.png": {
+        "size": [
+            165,
+            47
+        ],
+        "location": [
+            335,
+            574
+        ]
+    },
+    "sad_2.png": {
+        "size": [
+            172,
+            47
+        ],
+        "location": [
+            335,
+            574
+        ]
+    },
+    "sarcasm.png": {
+        "size": [
+            208,
+            106
+        ],
+        "location": [
+            306,
+            549
+        ]
+    },
+    "sarcasm_2.png": {
+        "size": [
+            208,
+            106
+        ],
+        "location": [
+            306,
+            549
+        ]
+    },
+    "silly.png": {
+        "size": [
+            211,
+            126
+        ],
+        "location": [
+            286,
+            549
+        ]
+    },
+    "silly_2.png": {
+        "size": [
+            211,
+            126
+        ],
+        "location": [
+            286,
+            549
+        ]
+    },
+    "spoked.png": {
+        "size": [
+            196,
+            93
+        ],
+        "location": [
+            306,
+            549
+        ]
+    },
+    "spoked_2.png": {
+        "size": [
+            173,
+            195
+        ],
+        "location": [
+            335,
+            523
+        ]
+    },
+    "worried.png": {
+        "size": [
+            149,
+            43
+        ],
+        "location": [
+            335,
+            574
+        ]
+    },
+    "worried_2.png": {
+        "size": [
+            168,
+            74
+        ],
+        "location": [
+            335,
+            574
+        ]
+    }
+}

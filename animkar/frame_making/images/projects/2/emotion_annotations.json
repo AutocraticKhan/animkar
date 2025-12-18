@@ -1,0 +1,184 @@
+{
+  "project_id": 2,
+  "original_text": " Hey there, wonderful humans. Today I'm here to prove I'm absolutely not a badly animated PNG pretending to have feelings. Actually, this script has 8 emotions, 12 postures, 4 modes, and I agreed to all of this. Why do I do this to myself? So this is me, being totally calm. Look at this calmness. Doctors hate it. Behold, boredom. This is my default mode during long meetings and lectures starting with according to the syllabus Whoa! Something actually interesting Oh yes, because obviously the world was waiting for another creatively edited video Revolutionary Wait, where did I go? Wow! Editor moved me to side like an unnecessary variable Dude! A potato? Really? this is why editors should not have freedom you know what hurts the potato got more screen time than me that's it editor stop adding sound effects every time I blink I don't need a whoosh for existing okay deep breaths maybe the audience still respects me no but okay cool cool cool and that dear viewers is the power of editing emotions done postures done random potato cameo extremely done if you still didn't hire this editor you're probably the potato",
+  "annotations": [
+    {
+      "text": " Hey there, wonderful humans",
+      "emotion": "happy",
+      "position": 0,
+      "length": 28,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": ". Today I'm here to prove I'm absolutely not a badly animated PNG pretending to have feelings. ",
+      "emotion": "sarcasm",
+      "position": 28,
+      "length": 95,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "Actually, this script has 8 emotions, 12 postures, 4 modes, and I agreed to all of this. Why do",
+      "emotion": "sarcasm",
+      "position": 123,
+      "length": 95,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": " I do this to myself? So thi",
+      "emotion": "sarcasm",
+      "position": 218,
+      "length": 28,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "s is me, being totally calm. Look a",
+      "emotion": "sarcasm",
+      "position": 246,
+      "length": 35,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "t this calmness. Doctor",
+      "emotion": "sarcasm",
+      "position": 281,
+      "length": 23,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "s hate it. Behold",
+      "emotion": "sarcasm",
+      "position": 304,
+      "length": 17,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": ", boredom. This i",
+      "emotion": "bore",
+      "position": 321,
+      "length": 17,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "s my default mode during long meetings and lectures starting with according to the syllabus Whoa! Someth",
+      "emotion": "bore",
+      "position": 338,
+      "length": 104,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "ing actually interesting Oh yes, beca",
+      "emotion": "happy",
+      "position": 442,
+      "length": 37,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "use obviously the world was waiting for another creatively edited video Revolutionar",
+      "emotion": "sarcasm",
+      "position": 479,
+      "length": 84,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "y Wait, where ",
+      "emotion": "sarcasm",
+      "position": 563,
+      "length": 14,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "did I go? Wow! Editor ",
+      "emotion": "worried",
+      "position": 577,
+      "length": 22,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "moved me to side like an unnecessary variable Dude! A potat",
+      "emotion": "sarcasm",
+      "position": 599,
+      "length": 59,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "o? Really? this is why ed",
+      "emotion": "angry",
+      "position": 658,
+      "length": 25,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "itors should not have freedom you know what ",
+      "emotion": "angry",
+      "position": 683,
+      "length": 44,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "hurts the potato got more screen time than me that's it edit",
+      "emotion": "sad",
+      "position": 727,
+      "length": 60,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "or stop adding sound effects every time I blink I don't need a whoosh for existing okay deep breath",
+      "emotion": "angry",
+      "position": 787,
+      "length": 99,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "s maybe the audience still respects me no but okay cool ",
+      "emotion": "worried",
+      "position": 886,
+      "length": 56,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "cool cool and that dear view",
+      "emotion": "sarcasm",
+      "position": 942,
+      "length": 28,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "ers is the power of editing emotions done post",
+      "emotion": "sarcasm",
+      "position": 970,
+      "length": 46,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "ures done random potato cameo extremely done if you still didn't",
+      "emotion": "sarcasm",
+      "position": 1016,
+      "length": 64,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": " hire this editor you're probably the pot",
+      "emotion": "sarcasm",
+      "position": 1080,
+      "length": 41,
+      "timestamp": "2025-11-29T12:20:34.491195"
+    },
+    {
+      "text": "ato",
+      "emotion": "sarcasm",
+      "position": 1121,
+      "length": 3,
+      "timestamp": "2025-11-29T12:21:31.760386"
+    }
+  ],
+  "export_date": "2025-11-29T12:21:31.772288",
+  "total_annotations": 24,
+  "emotion_summary": {
+    "happy": 2,
+    "sarcasm": 14,
+    "bore": 2,
+    "worried": 2,
+    "angry": 3,
+    "sad": 1
+  }
+}
