@@ -181,6 +181,9 @@ class FrameAnnotation(models.Model):
     # Media assignment (initially empty, filled later)
     media = models.CharField(max_length=500, blank=True, null=True)  # Path to media file or description
 
+    # Animation intensity
+    intensity = models.BooleanField(default=False)
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

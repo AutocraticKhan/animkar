@@ -1037,7 +1037,8 @@ def save_frames_to_db(request, transcription_id):
                 head_tilt=frame.get('head_tilt', 0),
                 zoom_level=frame.get('zoom_level', 1.0),
                 blink=frame.get('blink', False),
-                media=frame.get('media', '')  # Now includes media assignments
+                media=frame.get('media', ''),  # Now includes media assignments
+                intensity=frame.get('intensity', False)
             )
             frame_objects.append(frame_obj)
 
@@ -1153,7 +1154,8 @@ def generate_frames_from_words(word_data):
                 'eye_direction': 'M',
                 'head_tilt': 0,
                 'zoom_level': 1.0,
-                'blink': False
+                'blink': False,
+                'intensity': False
             })
         else:
             last_frame = frames[-1] if frames else None
@@ -1172,7 +1174,8 @@ def generate_frames_from_words(word_data):
                     'eye_direction': 'M',
                     'head_tilt': 0,
                     'zoom_level': 1.0,
-                    'blink': False
+                    'blink': False,
+                    'intensity': False
                 })
             else:
                 frames.append({
@@ -1189,7 +1192,8 @@ def generate_frames_from_words(word_data):
                     'eye_direction': 'M',
                     'head_tilt': 0,
                     'zoom_level': 1.0,
-                    'blink': False
+                    'blink': False,
+                    'intensity': False
                 })
 
     return frames
@@ -1705,3 +1709,67 @@ def assign_media_to_frames_list(frames, transcription):
         for frame in frames:
             frame['media'] = ''
         return frames
+
+
+def export_frames_dataframe(transcription_id):
+    """
+    Export FrameAnnotation data as a pandas DataFrame with correct data types.
+    Ensures boolean fields remain boolean and media paths remain strings.
+    """
+    import pandas as pd
+    from django.db import connection
+
+    transcription = get_object_or_404(AudioTranscription, id=transcription_id)
+
+    # Query FrameAnnotation data
+    frames = FrameAnnotation.objects.filter(transcription=transcription).order_by('frame_number')
+
+    if not frames.exists():
+        return pd.DataFrame()  # Return empty DataFrame if no frames
+
+    # Convert to DataFrame with explicit type handling
+    data = []
+    for frame in frames:
+        data.append({
+            'Frame': frame.frame_number,
+            'Word': frame.word,
+            'Start Time (s)': frame.time_seconds,  # Will be calculated from word timestamps if needed
+            'End Time (s)': frame.time_seconds,    # Will be calculated from word timestamps if needed
+            'Assigned_Phoneme': frame.phoneme,
+            'starting_frame': frame.frame_number,  # Same as Frame for this implementation
+            'end_frame': frame.frame_number,       # Same as Frame for this implementation
+            'Frame_Range': f"{frame.frame_number}-{frame.frame_number}",
+            'Phonemes': [frame.phoneme] if frame.phoneme else [],  # List format
+            'Emotion': frame.emotion,
+            'Character': frame.character,
+            'Mode': frame.mode,
+            'Body Posture': frame.body_posture,
+            'Intensity': bool(frame.intensity),  # Ensure boolean type
+            'Background': frame.background,
+            'Head_Direction': frame.head_direction,
+            'Eye_Direction': frame.eye_direction,
+            'Head_Tilt': frame.head_tilt,
+            'Zoom_Level': frame.zoom_level,
+            'Blink': bool(frame.blink),  # Ensure boolean type
+            'media': frame.media  # Ensure string/path type
+        })
+
+    df = pd.DataFrame(data)
+
+    # Explicitly set data types to ensure consistency
+    df = df.astype({
+        'Frame': 'int64',
+        'Start Time (s)': 'float64',
+        'End Time (s)': 'float64',
+        'starting_frame': 'int64',
+        'end_frame': 'int64',
+        'Head_Tilt': 'int64',
+        'Zoom_Level': 'float64',
+        'Intensity': 'bool',
+        'Blink': 'bool'
+    })
+
+    # Ensure Phonemes column contains lists
+    df['Phonemes'] = df['Phonemes'].apply(lambda x: x if isinstance(x, list) else [])
+
+    return df
