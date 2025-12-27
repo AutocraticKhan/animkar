@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('project_manager.urls')),
     path('', include('audio_transcription.urls')),
     path('annotation/', include('annotation.urls')),
+    path('frame-making/', include('frame_making.urls')),
 ]
 
 # Serve media files during development

@@ -14,27 +14,15 @@ class Project(models.Model):
 
     def delete(self, *args, **kwargs):
         """
-        Override delete to clean up associated files and database records.
+        Override delete to clean up all associated files and directories.
         """
-        # Delete all associated audio files from disk
-        for transcription in self.transcriptions.all():
-            if transcription.audio_file:
-                file_path = transcription.audio_file.path
-                if os.path.isfile(file_path):
-                    try:
-                        os.remove(file_path)
-                    except OSError:
-                        pass  # File may already be deleted or inaccessible
-
-        # Delete project directory if it exists and is empty
-        project_dir = os.path.join(settings.MEDIA_ROOT, f"audio_transcriptions/project_{self.id}")
+        # Delete the entire project directory and all its contents
+        project_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(self.id))
         if os.path.exists(project_dir):
             try:
-                # Try to remove directory (will fail if not empty, which is fine)
-                os.rmdir(project_dir)
+                shutil.rmtree(project_dir)
             except OSError:
-                # Directory not empty or other error - keep it
-                pass
+                pass  # Directory may not exist or other error
 
         # Call parent delete method (this will cascade delete all related objects)
         super().delete(*args, **kwargs)

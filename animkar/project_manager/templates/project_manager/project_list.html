@@ -8,7 +8,7 @@
                 <h5>Create New Project</h5>
             </div>
             <div class="card-body">
-                <form method="post" action="{% url 'project_create' %}">
+                <form method="post" action="{% url 'project_manager:project_create' %}">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="{{ form.name.id_for_label }}" class="form-label">Project Name *</label>
@@ -38,9 +38,9 @@
                 {% endif %}
                 <small class="text-muted">Created: {{ project.created_at|date:"M d, Y" }}</small>
                 <div class="mt-2">
-                    <a href="{% url 'project_detail' project.pk %}" class="btn btn-sm btn-primary">View</a>
-                    <a href="{% url 'project_update' project.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                    <a href="{% url 'project_delete' project.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                    <a href="{% url 'project_manager:project_detail' project.pk %}" class="btn btn-sm btn-primary">View</a>
+                    <a href="{% url 'project_manager:project_update' project.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <a href="{% url 'project_manager:project_delete' project.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
                 </div>
             </div>
         </div>

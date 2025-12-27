@@ -28,7 +28,7 @@ def upload_audio(request, project_id):
 
         if not audio_file:
             messages.error(request, 'Please select an audio file.')
-            return redirect('project_detail', pk=project_id)
+            return redirect('project_manager:project_detail', pk=project_id)
 
         # Validate file extension
         valid_extensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac']
@@ -36,13 +36,13 @@ def upload_audio(request, project_id):
 
         if file_ext not in valid_extensions:
             messages.error(request, f'Unsupported file format. Supported formats: {", ".join(valid_extensions)}')
-            return redirect('project_detail', pk=project_id)
+            return redirect('project_manager:project_detail', pk=project_id)
 
         # Validate file size (max 100MB)
         max_size = 100 * 1024 * 1024  # 100MB
         if audio_file.size > max_size:
             messages.error(request, 'File size too large. Maximum size is 100MB.')
-            return redirect('project_detail', pk=project_id)
+            return redirect('project_manager:project_detail', pk=project_id)
 
         try:
             # Create AudioTranscription instance
@@ -58,13 +58,13 @@ def upload_audio(request, project_id):
             process_transcription(transcription)
 
             messages.success(request, 'Audio file uploaded and transcription started. This may take a few minutes.')
-            return redirect('project_detail', pk=project_id)
+            return redirect('project_manager:project_detail', pk=project_id)
 
         except Exception as e:
             messages.error(request, f'Error uploading file: {str(e)}')
-            return redirect('project_detail', pk=project_id)
+            return redirect('project_manager:project_detail', pk=project_id)
 
-    return redirect('project_detail', pk=project_id)
+    return redirect('project_manager:project_detail', pk=project_id)
 
 def process_transcription(transcription):
     """Process the transcription in the background"""
@@ -183,10 +183,10 @@ def retry_transcription(request, transcription_id):
 class AudioTranscriptionDeleteView(DeleteView):
     model = AudioTranscription
     template_name = 'audio_transcription/transcription_confirm_delete.html'
-    success_url = reverse_lazy('project_list')
+    success_url = reverse_lazy('project_manager:project_list')
 
     def get_success_url(self):
-        return reverse('project_detail', kwargs={'pk': self.object.project.pk})
+        return reverse('project_manager:project_detail', kwargs={'pk': self.object.project.pk})
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, f'Deleted transcription "{self.get_object().original_filename}".')

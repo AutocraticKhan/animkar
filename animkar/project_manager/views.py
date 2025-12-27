@@ -24,15 +24,15 @@ class ProjectCreateView(CreateView):
     model = Project
     form_class = ProjectForm
     template_name = 'project_manager/project_form.html'
-    success_url = reverse_lazy('project_list')
+    success_url = reverse_lazy('project_manager:project_list')
 
 class ProjectUpdateView(UpdateView):
     model = Project
     form_class = ProjectForm
     template_name = 'project_manager/project_form.html'
-    success_url = reverse_lazy('project_list')
+    success_url = reverse_lazy('project_manager:project_list')
 
 class ProjectDeleteView(DeleteView):
     model = Project
     template_name = 'project_manager/project_confirm_delete.html'
-    success_url = reverse_lazy('project_list')
+    success_url = reverse_lazy('project_manager:project_list')

@@ -51,6 +51,44 @@ class AudioTranscription(models.Model):
         """Get file extension from original filename"""
         return os.path.splitext(self.original_filename)[1].lower()
 
+    def delete(self, *args, **kwargs):
+        """
+        Override delete to clean up associated files from disk.
+        """
+        # Delete the audio file
+        if self.audio_file:
+            file_path = self.audio_file.path
+            if os.path.isfile(file_path):
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass  # File may already be deleted or inaccessible
+
+        # Delete associated media files (assuming single transcription per project)
+        media_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(self.project.id), 'media')
+        if os.path.exists(media_dir):
+            try:
+                for filename in os.listdir(media_dir):
+                    file_path = os.path.join(media_dir, filename)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+            except OSError:
+                pass
+
+        # Delete associated video files
+        videos_dir = os.path.join(settings.MEDIA_ROOT, 'projects', str(self.project.id), 'videos')
+        if os.path.exists(videos_dir):
+            try:
+                for filename in os.listdir(videos_dir):
+                    file_path = os.path.join(videos_dir, filename)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+            except OSError:
+                pass
+
+        # Call parent delete method (this will cascade delete all related objects)
+        super().delete(*args, **kwargs)
+
 class WordTimestamp(models.Model):
     transcription = models.ForeignKey(AudioTranscription, on_delete=models.CASCADE, related_name='word_timestamps')
 

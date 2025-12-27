@@ -9,8 +9,8 @@
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_manager:project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_manager:project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
                     <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
                     <li class="breadcrumb-item active">Combined Annotations</li>
                 </ol>
@@ -19,10 +19,27 @@
     </div>
 
     <div class="row">
-        {% include "annotation/annotation_navigation.html" with active_page="combined" %}
+        <!-- Video Player Sidebar (moved to left) -->
+        <div class="col-md-2">
+            <div id="video-sidebar" class="card" style="display: none;">
+                <div class="card-header">
+                    <h6 class="mb-0">🎬 Generated Video</h6>
+                </div>
+                <div class="card-body">
+                    <video id="video-player" controls style="width: 100%; max-height: 300px;">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="mt-2">
+                        <a id="download-video-link" href="#" class="btn btn-sm btn-outline-primary" style="display: none;">
+                            📥 Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content: Combined Annotations Table -->
-        <div class="col-md-10">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
                     <h2 class="mb-0">
@@ -197,11 +214,13 @@
                 </div>
             </div>
         </div>
+
+        {% include "annotation/annotation_navigation.html" with active_page="combined" %}
     </div>
 </div>
 
 <script>
-const TRANSCRIPTION_ID = {{ transcription.pk|safe }};
+const TRANSCRIPTION_ID = "{{ transcription.pk }}";
 
 // Frame generation logic
 const FPS = 30;

@@ -6,8 +6,8 @@
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Projects</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'project_detail' project.pk %}">{{ project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_manager:project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_manager:project_detail' project.pk %}">{{ project.name }}</a></li>
                     <li class="breadcrumb-item active">{{ transcription.original_filename }}</li>
                 </ol>
             </nav>
@@ -215,7 +215,7 @@ function exportTimestamps() {
     ];
 
     // Add word data
-    {% for word in word_timestamps %}
+    {% for word in page_obj %}
     rows.push([
         "{{ word.word|escapejs }}",
         "{{ word.start_time_seconds }}",

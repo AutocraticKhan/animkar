@@ -1,0 +1,59 @@
+{% extends "project_manager/base.html" %}
+
+{% block title %}{% if error %}Video Generation Error{% else %}Video Generated{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        {% if error %}Video Generation Failed{% else %}Video Generated Successfully{% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p>Project: {{ transcription.project.title }}</p>
+                    <p>Transcription ID: {{ transcription.id }}</p>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> {{ error }}
+                        </div>
+                    {% else %}
+                        <div class="mb-4">
+                            <h5>Generated Video:</h5>
+                            <video controls width="100%" height="400" id="generated-video">
+                                <source src="{{ video_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'project_manager:project_detail' transcription.project.id %}" class="btn btn-secondary">Back to Project</a>
+                            <a href="{{ video_url }}" download class="btn btn-primary">Download Video</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not error %}
+<script>
+    // Show loading message while video loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('generated-video');
+        const loadingMessage = document.createElement('div');
+        loadingMessage.innerHTML = '<div class="alert alert-info">Loading video...</div>';
+        loadingMessage.id = 'loading-message';
+        video.parentNode.insertBefore(loadingMessage, video);
+
+        video.addEventListener('loadeddata', function() {
+            document.getElementById('loading-message').remove();
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

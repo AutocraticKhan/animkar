@@ -25,8 +25,8 @@
                     <h5>Actions</h5>
                 </div>
                 <div class="card-body">
-                    <a href="{% url 'project_update' project.pk %}" class="btn btn-outline-primary btn-sm mb-2">Edit Project</a>
-                    <a href="{% url 'project_delete' project.pk %}" class="btn btn-outline-danger btn-sm">Delete Project</a>
+                    <a href="{% url 'project_manager:project_update' project.pk %}" class="btn btn-outline-primary btn-sm mb-2">Edit Project</a>
+                    <a href="{% url 'project_manager:project_delete' project.pk %}" class="btn btn-outline-danger btn-sm">Delete Project</a>
                 </div>
             </div>
         </div>
