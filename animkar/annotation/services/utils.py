@@ -41,7 +41,7 @@ def calculate_coverage_status(transcription):
 
     # Check if video exists
     from frame_making.services_config import get_output_folder
-    video_filename = f"project_{transcription.project.id}_video.mp4"
+    video_filename = f"project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
     video_path = get_output_folder(transcription.project.id) / video_filename
     coverage_status['video_exists'] = video_path.exists()
 

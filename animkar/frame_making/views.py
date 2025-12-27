@@ -23,7 +23,7 @@ def generate_video_view(request, transcription_id):
         
     try:
         video_path = process_frames_for_transcription(transcription, frame_annotations)
-        video_url = f"/media/projects/{transcription.project.id}/videos/project_{transcription.project.id}_video.mp4"
+        video_url = f"/media/projects/{transcription.project.id}/videos/project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
         return render(request, 'frame_making/video_generated.html', {
             'transcription': transcription,
             'video_url': video_url,
@@ -40,7 +40,7 @@ def download_video_view(request, transcription_id):
     View to download the generated video.
     """
     transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
-    video_filename = f"project_{transcription.project.id}_video.mp4"
+    video_filename = f"project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
     from .services_config import get_output_folder
     video_path = get_output_folder(transcription.project.id) / video_filename
 
@@ -57,7 +57,7 @@ def video_status_view(request, transcription_id):
     Check if video exists for a transcription.
     """
     transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
-    video_filename = f"project_{transcription.project.id}_video.mp4"
+    video_filename = f"project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
     from .services_config import get_output_folder
     video_path = get_output_folder(transcription.project.id) / video_filename
 
@@ -79,13 +79,34 @@ def video_view(request, transcription_id):
     coverage_status = calculate_coverage_status(transcription)
 
     # Check if video exists
-    video_filename = f"project_{transcription.project.id}_video.mp4"
+    video_filename = f"project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
     from .services_config import get_output_folder
     video_path = get_output_folder(transcription.project.id) / video_filename
 
     if not video_path.exists():
+        # Check if frames exist for generation
+        frame_annotations = FrameAnnotation.objects.filter(transcription=transcription)
+        if not frame_annotations.exists():
+            return render(request, 'frame_making/video_view.html', {
+                'error': 'No frame annotations found. Please run the annotation process first.',
+                'transcription': transcription,
+                'coverage_status': coverage_status
+            })
+
+        # Start video generation asynchronously
+        import threading
+        def generate_video_async():
+            try:
+                process_frames_for_transcription(transcription, frame_annotations)
+            except Exception as e:
+                print(f"Video generation failed: {e}")
+
+        thread = threading.Thread(target=generate_video_async)
+        thread.daemon = True
+        thread.start()
+
         return render(request, 'frame_making/video_view.html', {
-            'error': 'Video not found. Please generate the video first.',
+            'error': 'Video generation started. Please refresh the page after a few minutes to view the video.',
             'transcription': transcription,
             'coverage_status': coverage_status
         })

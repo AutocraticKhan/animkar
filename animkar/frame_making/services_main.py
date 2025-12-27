@@ -94,7 +94,7 @@ def process_frames_for_transcription(transcription, frame_annotations):
 
     # Create the video
     audio_path = transcription.get_audio_file_path()
-    output_video_path = output_folder / f"project_{transcription.project.id}_video.mp4"
+    output_video_path = output_folder / f"project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
 
     create_video_ffmpeg(str(output_folder), str(output_video_path), FPS, audio_path)
 
