@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.core.serializers.json import DjangoJSONEncoder
 from audio_transcription.models import AudioTranscription, WordTimestamp
 from .models import EmotionAnnotation, BodyPostureAnnotation, ModeAnnotation, CharacterAnnotation, BackgroundAnnotation, FrameAnnotation
+from .services.utils import calculate_coverage_status
 from g2p_en import G2p
 
 def annotate_transcription(request, transcription_id):
@@ -25,27 +26,7 @@ def annotate_transcription(request, transcription_id):
     total_words = word_timestamps.count()
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-
-    # Emotion coverage
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == total_words
-
-    # Body posture coverage
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == total_words
-
-    # Mode coverage
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == total_words
-
-    # Characters coverage
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == total_words
-
-    # Background coverage
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == total_words
+    coverage_status = calculate_coverage_status(transcription)
 
     # Get existing annotations as a simple dict for template access
     existing_annotations_dict = {}
@@ -220,27 +201,7 @@ def annotate_mode(request, transcription_id):
     total_words = word_timestamps.count()
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-
-    # Emotion coverage
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == total_words
-
-    # Body posture coverage
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == total_words
-
-    # Mode coverage
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == total_words
-
-    # Characters coverage
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == total_words
-
-    # Background coverage
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == total_words
+    coverage_status = calculate_coverage_status(transcription)
 
     # Get existing annotations as a simple dict for template access
     existing_annotations_dict = {}
@@ -415,27 +376,7 @@ def annotate_body_posture(request, transcription_id):
     total_words = word_timestamps.count()
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-
-    # Emotion coverage
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == total_words
-
-    # Body posture coverage
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == total_words
-
-    # Mode coverage
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == total_words
-
-    # Characters coverage
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == total_words
-
-    # Background coverage
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == total_words
+    coverage_status = calculate_coverage_status(transcription)
 
     # Get existing annotations as a simple dict for template access
     existing_annotations_dict = {}
@@ -610,27 +551,7 @@ def annotate_characters(request, transcription_id):
     total_words = word_timestamps.count()
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-
-    # Emotion coverage
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == total_words
-
-    # Body posture coverage
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == total_words
-
-    # Mode coverage
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == total_words
-
-    # Characters coverage
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == total_words
-
-    # Background coverage
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == total_words
+    coverage_status = calculate_coverage_status(transcription)
 
     existing_annotations_dict = {}
     for ann in CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription):
@@ -708,27 +629,7 @@ def annotate_background(request, transcription_id):
     total_words = word_timestamps.count()
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-
-    # Emotion coverage
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == total_words
-
-    # Body posture coverage
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == total_words
-
-    # Mode coverage
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == total_words
-
-    # Characters coverage
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == total_words
-
-    # Background coverage
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == total_words
+    coverage_status = calculate_coverage_status(transcription)
 
     # Get existing annotations as a simple dict for template access
     existing_annotations_dict = {}
@@ -780,6 +681,10 @@ def save_background_annotations(request, transcription_id):
 
         transcription = get_object_or_404(AudioTranscription, id=transcription_id)
 
+        # Validate that all words are covered
+        word_timestamp_ids = set(transcription.word_timestamps.values_list('id', flat=True))
+        annotated_ids = set()
+
         for annotation_data in annotations:
             word_timestamp_id = annotation_data.get('word_timestamp_id')
             background_type = annotation_data.get('background_type', '')
@@ -790,6 +695,8 @@ def save_background_annotations(request, transcription_id):
 
             if background_type and background_type not in dict(BackgroundAnnotation.BACKGROUND_CHOICES):
                 return JsonResponse({'error': f'Invalid background type: {background_type}'}, status=400)
+
+            annotated_ids.add(word_timestamp_id)
 
             word_timestamp = get_object_or_404(WordTimestamp, id=word_timestamp_id, transcription=transcription)
 
@@ -804,6 +711,20 @@ def save_background_annotations(request, transcription_id):
             else:
                 # Remove annotation if background_type is 'none'
                 BackgroundAnnotation.objects.filter(word_timestamp=word_timestamp).delete()
+
+        # Check for missing annotations
+        missing_ids = word_timestamp_ids - annotated_ids
+        if missing_ids:
+            # Auto-assign default background "white" to missing words
+            for word_id in missing_ids:
+                word_timestamp = WordTimestamp.objects.get(id=word_id)
+                BackgroundAnnotation.objects.update_or_create(
+                    word_timestamp=word_timestamp,
+                    defaults={
+                        'background_type': 'white',
+                        'background_value': ''
+                    }
+                )
 
         return JsonResponse({'success': True, 'message': 'Background annotations saved successfully'})
 
@@ -821,21 +742,7 @@ def combined_annotations(request, transcription_id):
     g2p = G2p()
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == total_words
-
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == total_words
-
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == total_words
-
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == total_words
-
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == total_words
+    coverage_status = calculate_coverage_status(transcription)
 
     # Check if frames are already saved in database
     existing_frames = FrameAnnotation.objects.filter(transcription=transcription)
@@ -1204,27 +1111,7 @@ def media_chunks(request, transcription_id):
     transcription = get_object_or_404(AudioTranscription, id=transcription_id)
 
     # Calculate coverage status for all annotation types
-    coverage_status = {}
-
-    # Emotion coverage
-    emotion_count = EmotionAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['emotion_complete'] = emotion_count == transcription.word_timestamps.count()
-
-    # Body posture coverage
-    body_count = BodyPostureAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['body_complete'] = body_count == transcription.word_timestamps.count()
-
-    # Mode coverage
-    mode_count = ModeAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['mode_complete'] = mode_count == transcription.word_timestamps.count()
-
-    # Characters coverage
-    characters_count = CharacterAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['characters_complete'] = characters_count == transcription.word_timestamps.count()
-
-    # Background coverage
-    background_count = BackgroundAnnotation.objects.filter(word_timestamp__transcription=transcription).count()
-    coverage_status['background_complete'] = background_count == transcription.word_timestamps.count()
+    coverage_status = calculate_coverage_status(transcription)
 
     # Generate mode chunks
     chunks_data = generate_mode_chunks(transcription)

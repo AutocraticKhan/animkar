@@ -7,60 +7,62 @@
         <div class="card-body">
             <div class="d-grid gap-2 mb-3">
                 <a href="/transcription/{{ transcription.pk }}/"
-                   class="btn btn-outline-secondary btn-sm">
+                   class="btn btn-sm
+                   {% if coverage_status.transcription_complete %}btn-success{% else %}btn-outline-secondary{% endif %}">
                     📝 Transcription
                 </a>
                 {% comment %} Emotion Button {% endcomment %}
                 <a href="{% url 'annotation:annotate_transcription' transcription.pk %}"
                    class="btn btn-sm
-                   {% if coverage_status.emotion_complete %}btn-success{% elif active_page == 'emotion' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   {% if active_page == 'emotion' %}btn-primary{% elif coverage_status.emotion_complete %}btn-success{% else %}btn-outline-primary{% endif %}"
                    title="{% if coverage_status.emotion_complete %}Complete{% else %}In Progress{% endif %}">
                     🎨 Emotion
                 </a>
                 {% comment %} Body Posture Button {% endcomment %}
                 <a href="{% url 'annotation:annotate_body_posture' transcription.pk %}"
                    class="btn btn-sm
-                   {% if coverage_status.body_complete %}btn-success{% elif active_page == 'body' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   {% if active_page == 'body' %}btn-primary{% elif coverage_status.body_complete %}btn-success{% else %}btn-outline-primary{% endif %}"
                    title="{% if coverage_status.body_complete %}Complete{% else %}In Progress{% endif %}">
                     💃 Body
                 </a>
                 {% comment %} Mode Button {% endcomment %}
                 <a href="{% url 'annotation:annotate_mode' transcription.pk %}"
                    class="btn btn-sm
-                   {% if coverage_status.mode_complete %}btn-success{% elif active_page == 'mode' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   {% if active_page == 'mode' %}btn-primary{% elif coverage_status.mode_complete %}btn-success{% else %}btn-outline-primary{% endif %}"
                    title="{% if coverage_status.mode_complete %}Complete{% else %}In Progress{% endif %}">
                     🎬 Mode
                 </a>
                 {% comment %} Characters Button {% endcomment %}
                 <a href="{% url 'annotation:annotate_characters' transcription.pk %}"
                    class="btn btn-sm
-                   {% if coverage_status.characters_complete %}btn-success{% elif active_page == 'characters' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   {% if active_page == 'characters' %}btn-primary{% elif coverage_status.characters_complete %}btn-success{% else %}btn-outline-primary{% endif %}"
                    title="{% if coverage_status.characters_complete %}Complete{% else %}In Progress{% endif %}">
                     👥 Characters
                 </a>
                 {% comment %} Background Button {% endcomment %}
                 <a href="{% url 'annotation:annotate_background' transcription.pk %}"
                    class="btn btn-sm
-                   {% if coverage_status.background_complete %}btn-success{% elif active_page == 'background' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   {% if active_page == 'background' %}btn-primary{% elif coverage_status.background_complete %}btn-success{% else %}btn-outline-primary{% endif %}"
                    title="{% if coverage_status.background_complete %}Complete{% else %}In Progress{% endif %}">
                     🎨 Background
                 </a>
                 {% comment %} Combine Button {% endcomment %}
                 <a href="{% url 'annotation:combined_annotations' transcription.pk %}"
                    class="btn btn-sm
-                   {% if active_page == 'combined' %}btn-primary{% else %}btn-outline-info{% endif %}"
-                   title="View all annotations combined">
+                   {% if coverage_status.frames_saved %}btn-success{% elif active_page == 'combined' %}btn-primary{% else %}btn-outline-info{% endif %}"
+                   title="{% if coverage_status.frames_saved %}Frames Saved to DB{% else %}View all annotations combined{% endif %}">
                     📊 Combine
                 </a>
                 {% comment %} Media Addition Button {% endcomment %}
                 <a href="{% url 'annotation:media_chunks' transcription.pk %}"
                    class="btn btn-sm
-                   {% if active_page == 'media' %}btn-primary{% else %}btn-outline-warning{% endif %}"
-                   title="Manage media for mode chunks">
+                   {% if coverage_status.media_added %}btn-success{% elif active_page == 'media' %}btn-primary{% else %}btn-outline-warning{% endif %}"
+                   title="{% if coverage_status.media_added %}Media Added{% else %}Manage media for mode chunks{% endif %}">
                     🎬 Media Addition
                 </a>
                 <button type="button"
-                        class="btn btn-sm btn-outline-danger"
+                        class="btn btn-sm
+                        {% if coverage_status.video_exists %}btn-success{% else %}btn-outline-danger{% endif %}"
                         id="viewVideoBtn"
                         onclick="viewVideo()">
                     🎥 View Video

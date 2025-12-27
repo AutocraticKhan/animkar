@@ -2,6 +2,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from audio_transcription.models import AudioTranscription
 from annotation.models import FrameAnnotation
+from annotation.services.utils import calculate_coverage_status
 from .services_main import process_frames_for_transcription
 import os
 
@@ -74,6 +75,9 @@ def video_view(request, transcription_id):
     """
     transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
 
+    # Calculate coverage status for navigation
+    coverage_status = calculate_coverage_status(transcription)
+
     # Check if video exists
     video_filename = f"project_{transcription.project.id}_video.mp4"
     from .services_config import get_output_folder
@@ -82,14 +86,16 @@ def video_view(request, transcription_id):
     if not video_path.exists():
         return render(request, 'frame_making/video_view.html', {
             'error': 'Video not found. Please generate the video first.',
-            'transcription': transcription
+            'transcription': transcription,
+            'coverage_status': coverage_status
         })
 
     video_url = f"/media/projects/{transcription.project.id}/videos/{video_filename}"
     return render(request, 'frame_making/video_view.html', {
         'transcription': transcription,
         'video_url': video_url,
-        'video_path': video_path
+        'video_path': video_path,
+        'coverage_status': coverage_status
     })
 
 def generate_video_ajax_view(request, transcription_id):
