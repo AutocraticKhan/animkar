@@ -68,6 +68,30 @@ def video_status_view(request, transcription_id):
         'video_url': video_url
     })
 
+def video_view(request, transcription_id):
+    """
+    View to display the generated video with navigation layout.
+    """
+    transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
+
+    # Check if video exists
+    video_filename = f"project_{transcription.project.id}_video.mp4"
+    from .services_config import get_output_folder
+    video_path = get_output_folder(transcription.project.id) / video_filename
+
+    if not video_path.exists():
+        return render(request, 'frame_making/video_view.html', {
+            'error': 'Video not found. Please generate the video first.',
+            'transcription': transcription
+        })
+
+    video_url = f"/media/projects/{transcription.project.id}/videos/{video_filename}"
+    return render(request, 'frame_making/video_view.html', {
+        'transcription': transcription,
+        'video_url': video_url,
+        'video_path': video_path
+    })
+
 def generate_video_ajax_view(request, transcription_id):
     """
     AJAX view to trigger video generation.

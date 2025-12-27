@@ -1,0 +1,76 @@
+{% extends "project_manager/base.html" %}
+
+{% block title %}Video View - {{ transcription.original_filename }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {% csrf_token %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'project_manager:project_list' %}">Projects</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_manager:project_detail' transcription.project.pk %}">{{ transcription.project.name }}</a></li>
+                    <li class="breadcrumb-item"><a href="/transcription/{{ transcription.pk }}/">{{ transcription.original_filename }}</a></li>
+                    <li class="breadcrumb-item active">Video View</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        {% include "annotation/annotation_navigation.html" with active_page="" %}
+
+        <!-- Video Content -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">
+                        🎬 Generated Video: {{ transcription.original_filename }}
+                    </h2>
+                </div>
+                <div class="card-body text-center">
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> {{ error }}
+                        </div>
+                    {% else %}
+                        <div class="mb-4">
+                            <video controls width="100%" height="500" id="generated-video">
+                                <source src="{{ video_url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'project_manager:project_detail' transcription.project.pk %}" class="btn btn-secondary">
+                                🏠 Back to Project
+                            </a>
+                            <a href="{{ video_url }}" download class="btn btn-primary">
+                                📥 Download Video
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not error %}
+<script>
+    // Show loading message while video loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('generated-video');
+        const loadingMessage = document.createElement('div');
+        loadingMessage.innerHTML = '<div class="alert alert-info">Loading video...</div>';
+        loadingMessage.id = 'loading-message';
+        video.parentNode.insertBefore(loadingMessage, video);
+
+        video.addEventListener('loadeddata', function() {
+            document.getElementById('loading-message').remove();
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

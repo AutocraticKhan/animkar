@@ -61,119 +61,17 @@
                 </a>
                 <button type="button"
                         class="btn btn-sm btn-outline-danger"
-                        id="createVideoBtn"
-                        onclick="generateVideo()">
-                    🎥 Create Video
+                        id="viewVideoBtn"
+                        onclick="viewVideo()">
+                    🎥 View Video
                 </button>
             </div>
         </div>
 
         <script>
-        function generateVideo() {
-            const btn = document.getElementById('createVideoBtn');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
-
-            const transcriptionId = {{ transcription.pk }};
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            // First check if video exists
-            fetch(`/frame-making/video-status/${transcriptionId}/`, {
-                method: 'GET',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.exists) {
-                    // Video exists, show it
-                    showVideo(data.video_url);
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                } else {
-                    // Video doesn't exist, generate it
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
-                    generateVideoAjax(transcriptionId, csrfToken, btn, originalText);
-                }
-            })
-            .catch(error => {
-                console.error('Error checking video status:', error);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                alert('Error checking video status');
-            });
-        }
-
-        function generateVideoAjax(transcriptionId, csrfToken, btn, originalText) {
-            fetch(`/frame-making/generate-video-ajax/${transcriptionId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Start polling for completion
-                    pollVideoStatus(transcriptionId, csrfToken, btn, originalText);
-                } else {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error generating video:', error);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                alert('Error generating video');
-            });
-        }
-
-        function pollVideoStatus(transcriptionId, csrfToken, btn, originalText) {
-            const pollInterval = setInterval(() => {
-                fetch(`/frame-making/video-status/${transcriptionId}/`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRFToken': csrfToken
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists) {
-                        clearInterval(pollInterval);
-                        showVideo(data.video_url);
-                        btn.disabled = false;
-                        btn.innerHTML = originalText;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error polling video status:', error);
-                });
-            }, 2000); // Poll every 2 seconds
-        }
-
-        function showVideo(videoUrl) {
-            const videoSidebar = document.getElementById('video-sidebar');
-            const videoPlayer = document.getElementById('video-player');
-            const downloadLink = document.getElementById('download-video-link');
-
-            if (videoSidebar && videoPlayer) {
-                videoPlayer.src = videoUrl;
-                videoSidebar.style.display = 'block';
-                videoPlayer.load();
-
-                // Update download link
-                if (downloadLink) {
-                    downloadLink.href = videoUrl.replace('/media/frame_making/output/', '/frame-making/download-video/{{ transcription.pk }}/');
-                    downloadLink.style.display = 'inline-block';
-                }
-            }
+        function viewVideo() {
+            // Redirect to dedicated video viewing page with navigation layout
+            window.location.href = `/frame-making/video-view/{{ transcription.pk }}/`;
         }
         </script>
     </div>
