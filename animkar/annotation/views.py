@@ -988,7 +988,7 @@ def generate_frames_from_words(word_data):
         return []
 
     FPS = 30
-    DEFAULT_PHONEME = 'CLOSED'
+    DEFAULT_PHONEME = 'M'
 
     # Calculate total frames
     max_end_time = max(row['end_time'] for row in word_data)

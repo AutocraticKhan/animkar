@@ -1,7 +1,9 @@
 import os
 import traceback
 import pandas as pd
+from pathlib import Path
 from PIL import Image
+from django.conf import settings
 from .services_config import (
     TOP_PADDING, FINAL_CANVAS_SIZE, IMAGES_DIR,
     eye_data_map, mouth_data_map, head_on_body_map,
@@ -65,8 +67,8 @@ def generate_composite_image(frame_annotation, blink_counter, current_body_image
             background_applied = False
             
             if media_input and media_input != 'None':
-                # Map media path. In your original code it was images/ + media_input
-                media_image_path = IMAGES_DIR / media_input
+                # Map media path. Use MEDIA_ROOT for uploaded media files
+                media_image_path = Path(settings.MEDIA_ROOT) / 'projects' / str(frame_annotation.transcription.project.id) / 'media' / media_input
                 if media_image_path.exists():
                     # Find the current no_avatar block
                     no_avatar_frames_list = all_no_avatar_frames
@@ -188,7 +190,7 @@ def generate_composite_image(frame_annotation, blink_counter, current_body_image
             OVERLAY_MODES = ['big_side', 'small_side', 'big_side_vertical']
             media_val = frame_annotation.media
             if mode in OVERLAY_MODES and media_val and str(media_val).strip() != 'None':
-                overlay_image_path_2 = IMAGES_DIR / str(media_val).strip()
+                overlay_image_path_2 = Path(settings.MEDIA_ROOT) / 'projects' / str(frame_annotation.transcription.project.id) / 'media' / str(media_val).strip()
                 if overlay_image_path_2.exists():
                     overlay_img_2 = Image.open(overlay_image_path_2).convert("RGBA")
                     w, h = overlay_img_2.size
