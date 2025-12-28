@@ -865,6 +865,8 @@ def save_frames_to_db(request, transcription_id):
     """Save the current frame table to database"""
     transcription = get_object_or_404(AudioTranscription, id=transcription_id)
 
+    FPS = 30  # Define FPS constant
+
     try:
         # Delete existing frames for this transcription
         FrameAnnotation.objects.filter(transcription=transcription).delete()
@@ -922,8 +924,13 @@ def save_frames_to_db(request, transcription_id):
         # Generate frames using the same algorithm as frontend
         frames = generate_frames_from_words(word_data)
 
+        # Apply animation processing (including blinking)
+        from .animation_processor import AnimationProcessor
+        processor = AnimationProcessor(FPS)
+        frames_with_animation = processor.process(frames)
+
         # Assign media to frames based on mode chunks
-        frames_with_media = assign_media_to_frames_list(frames, transcription)
+        frames_with_media = assign_media_to_frames_list(frames_with_animation, transcription)
 
         # Save frames to database
         frame_objects = []

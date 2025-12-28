@@ -46,9 +46,24 @@
                             <a href="{% url 'project_manager:project_detail' transcription.project.pk %}" class="btn btn-secondary">
                                 🏠 Back to Project
                             </a>
+                            <button id="recreate-video-btn" class="btn btn-warning">
+                                🔄 Recreate Video
+                            </button>
                             <a href="{{ video_url }}" download class="btn btn-primary">
                                 📥 Download Video
                             </a>
+                        </div>
+
+                        <!-- Loading message for video recreation -->
+                        <div id="recreate-status" class="mt-3" style="display: none;">
+                            <div class="alert alert-info">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span>Recreating video based on updated frame annotations...</span>
+                                </div>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
@@ -69,6 +84,82 @@
 
         video.addEventListener('loadeddata', function() {
             document.getElementById('loading-message').remove();
+        });
+
+        // Handle recreate video button
+        const recreateBtn = document.getElementById('recreate-video-btn');
+        const recreateStatus = document.getElementById('recreate-status');
+
+        recreateBtn.addEventListener('click', function() {
+            // Disable button and show loading
+            recreateBtn.disabled = true;
+            recreateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Recreating...';
+            recreateStatus.style.display = 'block';
+
+            // Make AJAX request to regenerate video
+            fetch(`/frame-making/generate-video-ajax/{{ transcription.pk }}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status message
+                    recreateStatus.innerHTML = `
+                        <div class="alert alert-success">
+                            <div class="d-flex align-items-center">
+                                <span>✅ Video recreation started! The page will automatically refresh when complete.</span>
+                            </div>
+                        </div>
+                    `;
+
+                    // Poll for video completion
+                    const checkVideoStatus = () => {
+                        fetch(`/frame-making/video-status/{{ transcription.pk }}/`)
+                        .then(response => response.json())
+                        .then(statusData => {
+                            if (statusData.exists) {
+                                // Video is ready, refresh the page
+                                location.reload();
+                            } else {
+                                // Keep checking
+                                setTimeout(checkVideoStatus, 5000); // Check every 5 seconds
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking video status:', error);
+                            setTimeout(checkVideoStatus, 5000);
+                        });
+                    };
+
+                    // Start polling after a short delay
+                    setTimeout(checkVideoStatus, 2000);
+                } else {
+                    // Show error
+                    recreateStatus.innerHTML = `
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> ${data.error}
+                        </div>
+                    `;
+                    // Re-enable button
+                    recreateBtn.disabled = false;
+                    recreateBtn.innerHTML = '🔄 Recreate Video';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                recreateStatus.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> Failed to start video recreation. Please try again.
+                    </div>
+                `;
+                // Re-enable button
+                recreateBtn.disabled = false;
+                recreateBtn.innerHTML = '🔄 Recreate Video';
+            });
         });
     });
 </script>

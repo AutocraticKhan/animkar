@@ -111,7 +111,9 @@ def video_view(request, transcription_id):
             'coverage_status': coverage_status
         })
 
-    video_url = f"/media/projects/{transcription.project.id}/videos/{video_filename}"
+    # Add timestamp to force browser to reload video (prevent caching)
+    import time
+    video_url = f"/media/projects/{transcription.project.id}/videos/{video_filename}?t={int(time.time())}"
     return render(request, 'frame_making/video_view.html', {
         'transcription': transcription,
         'video_url': video_url,
