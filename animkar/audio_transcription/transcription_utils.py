@@ -321,7 +321,8 @@ def transcribe_audio_with_accurate_timestamps(
     language="hi",
     silence_thresh=-40,
     min_silence_len=500,
-    confidence_threshold=0.3
+    confidence_threshold=0.3,
+    progress_callback=None
 ):
     """
     Complete transcription pipeline with accurate timestamps and automatic Hindi-to-Latin transliteration.
@@ -340,6 +341,9 @@ def transcribe_audio_with_accurate_timestamps(
     try:
         # Load Whisper model
         print(f"\n[1/7] Loading Whisper model: {MODEL_NAME}...")
+        if progress_callback:
+            progress_callback(5, "Loading AI transcription model...")
+
         device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {device}")
 
@@ -350,19 +354,31 @@ def transcribe_audio_with_accurate_timestamps(
         try:
             model = whisper.load_model(MODEL_NAME, device=device)
             print(f"✓ Loaded {MODEL_NAME} successfully")
+            if progress_callback:
+                progress_callback(15, "Whisper model loaded successfully")
         except Exception as e:
             print(f"⚠️ Failed to load {MODEL_NAME}: {e}")
             print("   Falling back to 'base' model...")
+            if progress_callback:
+                progress_callback(10, "Loading fallback model...")
             model = whisper.load_model("base", device=device)
+            if progress_callback:
+                progress_callback(15, "Fallback model loaded")
 
         # Preprocess audio
         print(f"\n[2/7] Preprocessing audio...")
+        if progress_callback:
+            progress_callback(25, "Preprocessing audio file...")
         preprocessed_audio, audio_duration = preprocess_audio(audio_path)
         temp_files.append(preprocessed_audio)
         print(f"✓ Audio duration: {audio_duration:.2f} seconds")
+        if progress_callback:
+            progress_callback(35, f"Audio preprocessed ({audio_duration:.1f}s duration)")
 
         # Split audio
         print(f"\n[3/7] Splitting audio (threshold={silence_thresh}dB, min_silence={min_silence_len}ms)...")
+        if progress_callback:
+            progress_callback(45, "Splitting audio into chunks...")
         chunks_info = split_audio_with_precise_timestamps(
             preprocessed_audio,
             silence_thresh=silence_thresh,
@@ -374,17 +390,29 @@ def transcribe_audio_with_accurate_timestamps(
             raise ValueError("No speech detected. Try adjusting silence_thresh parameter.")
 
         print(f"✓ Created {len(chunks_info)} chunks")
+        if progress_callback:
+            progress_callback(55, f"Created {len(chunks_info)} audio chunks")
 
         # Save chunks
         print(f"\n[4/7] Saving temporary chunks...")
+        if progress_callback:
+            progress_callback(60, "Preparing audio chunks for transcription...")
         chunk_files = save_chunks(chunks_info)
+        if progress_callback:
+            progress_callback(65, f"Prepared {len(chunk_files)} chunks for processing")
 
         # Transcribe chunks
         print(f"\n[5/7] Transcribing chunks (language: {language.upper()})...")
+        if progress_callback:
+            progress_callback(70, f"Starting transcription of {len(chunks_info)} chunks...")
         all_words = []
         total_transliterated = 0
 
         for i, (chunk_file, chunk_info) in enumerate(zip(chunk_files, chunks_info)):
+            chunk_progress = 70 + int(20 * (i / len(chunks_info)))  # Progress from 70% to 90%
+            if progress_callback:
+                progress_callback(chunk_progress, f"Transcribing chunk {i+1}/{len(chunks_info)}...")
+
             print(f"  Chunk {i+1}/{len(chunks_info)}: {chunk_info['absolute_start_ms']/1000:.2f}s - {chunk_info['absolute_end_ms']/1000:.2f}s", end="")
 
             words = process_chunk_with_whisper(model, chunk_file, chunk_info, language)
@@ -398,15 +426,23 @@ def transcribe_audio_with_accurate_timestamps(
 
         # Validate timestamps
         print(f"\n[6/7] Validating {len(all_words)} word timestamps...")
+        if progress_callback:
+            progress_callback(90, "Validating and fixing timestamps...")
         all_words = validate_and_fix_timestamps(all_words, confidence_threshold)
+        if progress_callback:
+            progress_callback(95, f"Validated {len(all_words)} words")
 
         # Clean up
         print(f"\n[7/7] Cleaning up temporary files...")
+        if progress_callback:
+            progress_callback(98, "Cleaning up temporary files...")
         if os.path.exists("temp_chunks"):
             shutil.rmtree("temp_chunks")
         for temp_file in temp_files:
             if os.path.exists(temp_file):
                 os.remove(temp_file)
+        if progress_callback:
+            progress_callback(100, "Transcription completed successfully!")
 
         # Display summary
         print("\n" + "="*80)

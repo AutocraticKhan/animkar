@@ -33,6 +33,10 @@ class AudioTranscription(models.Model):
     high_confidence_words = models.PositiveIntegerField(null=True, blank=True)
     average_confidence = models.FloatField(null=True, blank=True)
 
+    # Progress tracking
+    progress_percentage = models.FloatField(default=0.0, help_text="Progress percentage (0-100)")
+    progress_message = models.CharField(max_length=255, blank=True, help_text="Current processing step")
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.views.generic import DeleteView
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -17,6 +17,7 @@ from .transcription_utils import (
 )
 import os
 import torch
+import threading
 from django.conf import settings
 
 def upload_audio(request, project_id):
@@ -27,7 +28,10 @@ def upload_audio(request, project_id):
         audio_file = request.FILES.get('audio_file')
 
         if not audio_file:
-            messages.error(request, 'Please select an audio file.')
+            error_msg = 'Please select an audio file.'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': error_msg}, status=400)
+            messages.error(request, error_msg)
             return redirect('project_manager:project_detail', pk=project_id)
 
         # Validate file extension
@@ -35,13 +39,19 @@ def upload_audio(request, project_id):
         file_ext = os.path.splitext(audio_file.name)[1].lower()
 
         if file_ext not in valid_extensions:
-            messages.error(request, f'Unsupported file format. Supported formats: {", ".join(valid_extensions)}')
+            error_msg = f'Unsupported file format. Supported formats: {", ".join(valid_extensions)}'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': error_msg}, status=400)
+            messages.error(request, error_msg)
             return redirect('project_manager:project_detail', pk=project_id)
 
         # Validate file size (max 100MB)
         max_size = 100 * 1024 * 1024  # 100MB
         if audio_file.size > max_size:
-            messages.error(request, 'File size too large. Maximum size is 100MB.')
+            error_msg = 'File size too large. Maximum size is 100MB.'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': error_msg}, status=400)
+            messages.error(request, error_msg)
             return redirect('project_manager:project_detail', pk=project_id)
 
         try:
@@ -51,34 +61,60 @@ def upload_audio(request, project_id):
                 audio_file=audio_file,
                 original_filename=audio_file.name,
                 file_size=audio_file.size,
-                status='processing'
+                status='processing',
+                progress_percentage=0,
+                progress_message='Upload completed, starting transcription...'
             )
 
-            # Start transcription process
-            process_transcription(transcription)
+            # Start transcription process in background thread
+            start_transcription_async(transcription)
 
-            messages.success(request, 'Audio file uploaded and transcription started. This may take a few minutes.')
+            success_msg = 'Audio file uploaded and transcription started. You can monitor progress below.'
+
+            # Return JSON for AJAX requests
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'transcription_id': transcription.id,
+                    'message': success_msg
+                })
+
+            # Regular response for non-AJAX requests
+            messages.success(request, success_msg)
             return redirect('project_manager:project_detail', pk=project_id)
 
         except Exception as e:
-            messages.error(request, f'Error uploading file: {str(e)}')
+            error_msg = f'Error uploading file: {str(e)}'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': error_msg}, status=500)
+            messages.error(request, error_msg)
             return redirect('project_manager:project_detail', pk=project_id)
 
     return redirect('project_manager:project_detail', pk=project_id)
 
 def process_transcription(transcription):
-    """Process the transcription in the background"""
+    """Process the transcription in the background with progress updates"""
+    def progress_callback(percentage, message):
+        """Update transcription progress in database"""
+        transcription.progress_percentage = percentage
+        transcription.progress_message = message
+        transcription.save(update_fields=['progress_percentage', 'progress_message'])
+
     try:
+        # Initialize progress
+        progress_callback(0, "Starting transcription...")
+
         # Get audio file path
         audio_path = transcription.get_audio_file_path()
 
-        # Transcribe audio with improved pipeline
+        # Transcribe audio with improved pipeline and progress callback
         words_data = transcribe_audio_with_accurate_timestamps(
             audio_path=audio_path,
             language=transcription.language,
             silence_thresh=-40,
             min_silence_len=500,
-            confidence_threshold=0.3
+            confidence_threshold=0.3,
+            progress_callback=progress_callback
         )
 
         # Calculate statistics
@@ -95,6 +131,8 @@ def process_transcription(transcription):
         transcription.average_confidence = avg_confidence
         transcription.model_name = MODEL_NAME
         transcription.processed_at = timezone.now()
+        transcription.progress_percentage = 100
+        transcription.progress_message = "Transcription completed successfully!"
         transcription.save()
 
         # Create WordTimestamp instances with transliteration data
@@ -112,10 +150,18 @@ def process_transcription(transcription):
 
     except Exception as e:
         transcription.status = 'failed'
+        transcription.progress_percentage = 0
+        transcription.progress_message = f"Transcription failed: {str(e)}"
         transcription.save()
         print(f"Transcription failed: {e}")
         import traceback
         traceback.print_exc()
+
+def start_transcription_async(transcription):
+    """Start transcription in a background thread"""
+    thread = threading.Thread(target=process_transcription, args=(transcription,))
+    thread.daemon = True
+    thread.start()
 
 def transcription_detail(request, transcription_id):
     """Display detailed transcription results"""
@@ -160,17 +206,34 @@ def transcription_detail(request, transcription_id):
 
     return render(request, 'audio_transcription/transcription_detail.html', context)
 
+@require_GET
+def get_transcription_progress(request, transcription_id):
+    """Get transcription progress via AJAX"""
+    transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
+
+    return JsonResponse({
+        'status': transcription.status,
+        'progress_percentage': transcription.progress_percentage,
+        'progress_message': transcription.progress_message,
+        'total_words': transcription.total_words,
+        'duration_seconds': transcription.duration_seconds,
+        'high_confidence_words': transcription.high_confidence_words,
+        'average_confidence': transcription.average_confidence,
+    })
+
 @require_POST
 def retry_transcription(request, transcription_id):
     """Retry failed transcription"""
     transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
 
     if transcription.status == 'failed':
-        transcription.status = 'pending'
+        transcription.status = 'processing'
+        transcription.progress_percentage = 0
+        transcription.progress_message = 'Retrying transcription...'
         transcription.save()
 
-        # Process again
-        process_transcription(transcription)
+        # Process again in background
+        start_transcription_async(transcription)
 
         messages.success(request, 'Transcription retry started.')
     else:
