@@ -17,6 +17,13 @@ class AudioTranscription(models.Model):
         ('failed', 'Failed'),
     ]
 
+    VIDEO_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='transcriptions')
     audio_file = models.FileField(upload_to=project_audio_upload_path)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -36,6 +43,11 @@ class AudioTranscription(models.Model):
     # Progress tracking
     progress_percentage = models.FloatField(default=0.0, help_text="Progress percentage (0-100)")
     progress_message = models.CharField(max_length=255, blank=True, help_text="Current processing step")
+
+    # Video progress tracking
+    video_status = models.CharField(max_length=20, choices=VIDEO_STATUS_CHOICES, default='pending')
+    video_progress_percentage = models.FloatField(default=0.0, help_text="Video progress percentage (0-100)")
+    video_progress_message = models.CharField(max_length=255, blank=True, help_text="Current video processing step")
 
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

@@ -5,7 +5,7 @@ from .services_config import get_output_folder, IMAGES_DIR, FPS
 from .services_generation import generate_composite_image
 from .video_creation import create_video_ffmpeg
 
-def process_frames_for_transcription(transcription, frame_annotations):
+def process_frames_for_transcription(transcription, frame_annotations, progress_callback=None):
     """
     Main processing loop for generating frames and video from database records.
     """
@@ -53,7 +53,11 @@ def process_frames_for_transcription(transcription, frame_annotations):
                 'total_frames': len(no_avatar_frames) - no_avatar_frames.index(current_segment_start)
             })
 
-    print(f"Processing {len(frame_annotations)} frames...")
+    total_frames = len(frame_annotations)
+    print(f"Processing {total_frames} frames...")
+
+    if progress_callback:
+        progress_callback(0, "Starting frame generation...")
 
     blink_counter = 0
     current_body_image_path = None
@@ -61,7 +65,7 @@ def process_frames_for_transcription(transcription, frame_annotations):
     last_posture = None
     frames_to_hold_image = 0
 
-    for fa in tqdm(frame_annotations, desc="Processing frames"):
+    for i, fa in enumerate(tqdm(frame_annotations, desc="Processing frames")):
         posture = fa.body_posture
         if posture != last_posture or frames_to_hold_image <= 0:
             body_images_dir = IMAGES_DIR / 'body' / 'character_1' / posture
@@ -90,12 +94,26 @@ def process_frames_for_transcription(transcription, frame_annotations):
                 current_body_filename, avatar_visibility_map, no_avatar_segments, no_avatar_frames, output_folder
             )
 
+        # Update progress for frame processing (80% of total progress)
+        if progress_callback:
+            frame_progress = ((i + 1) / total_frames) * 80
+            progress_callback(frame_progress, f"Processing frame {i + 1}/{total_frames}...")
+
     print("All frames processed successfully!")
+
+    if progress_callback:
+        progress_callback(80, "Frame generation completed. Creating video...")
 
     # Create the video
     audio_path = transcription.get_audio_file_path()
     output_video_path = output_folder / f"project_{transcription.project.id}_transcription_{transcription.id}_video.mp4"
 
     create_video_ffmpeg(str(output_folder), str(output_video_path), FPS, audio_path)
+
+    if progress_callback:
+        print(f"Calling progress_callback with 100%")
+        progress_callback(100, "Video generation completed successfully!")
+    else:
+        print("No progress_callback provided")
 
     return str(output_video_path)

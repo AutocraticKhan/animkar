@@ -221,6 +221,17 @@ def get_transcription_progress(request, transcription_id):
         'average_confidence': transcription.average_confidence,
     })
 
+@require_GET
+def get_video_progress(request, transcription_id):
+    """Get video generation progress via AJAX"""
+    transcription = get_object_or_404(AudioTranscription, pk=transcription_id)
+
+    return JsonResponse({
+        'status': transcription.video_status,
+        'progress_percentage': transcription.video_progress_percentage,
+        'progress_message': transcription.video_progress_message,
+    })
+
 @require_POST
 def retry_transcription(request, transcription_id):
     """Retry failed transcription"""
